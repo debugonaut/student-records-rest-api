@@ -111,3 +111,4 @@ python3 generate_pdf_report.py
 4. Import `postman/Student_Records_Environment.postman_environment.json`.
 5. Select the **Student Records Registry Environment** in the top-right environment selector.
 6. Click **Run Collection** to execute all 11 test suites sequentially. All tests will pass with green `[PASS]` status!
+

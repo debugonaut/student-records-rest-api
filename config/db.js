@@ -32,3 +32,4 @@ export const getDBStatus = () => ({
   databaseName: isConnected ? mongoose.connection.name : 'resilient-in-memory-db',
   host: isConnected ? mongoose.connection.host : 'localhost-virtual',
 });
+

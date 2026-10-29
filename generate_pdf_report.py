@@ -545,3 +545,4 @@ html_obj.write_pdf(output_pdf_path)
 
 print(f"\nSUCCESS! PDF Report generated:")
 print(f" -> {output_pdf_path} ({os.path.getsize(output_pdf_path)} bytes)\n")
+

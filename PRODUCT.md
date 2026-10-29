@@ -19,3 +19,4 @@
 - Follow RFC 7807 problem details / structured JSON response format `{ success, data, message, meta }`.
 - Zero AI slop: no purple glow halos, no meaningless badges, no nested cards.
 - WCAG AA accessibility compliance (contrast ratio ≥ 4.5:1 for all textual elements).
+

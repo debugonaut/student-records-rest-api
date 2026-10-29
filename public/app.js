@@ -1,6 +1,7 @@
 /**
- * Student Records Registry — RESTful API Console Frontend
+ * Student Records Registry — RESTful API Console Frontend (Redesigned)
  * Pure Vanilla JavaScript (ES6+) | Impeccable Operate Mode
+ * Author: Aadesh Khande (PRN: 202401100090)
  */
 
 (() => {
@@ -8,6 +9,7 @@
   const state = {
     records: [],
     meta: { total: 0, page: 1, limit: 15, totalPages: 1 },
+    stats: { total: 0, avgCgpa: 0, byDepartment: [], byStatus: [] },
     filters: {
       search: '',
       department: 'All',
@@ -20,40 +22,64 @@
     editingRecordId: null,
     deletingRecord: null,
     isInspectorOpen: false,
+    activeInspectorTab: 'response',
     searchDebounceTimer: null,
+    isCompactDensity: true,
   };
 
   // DOM Elements Cache
   const el = {
-    // Telemetry
+    // Telemetry & Metrics
     dbPip: document.getElementById('db-pip'),
     dbStatusText: document.getElementById('db-status-text'),
-    telemetryCount: document.getElementById('telemetry-count'),
-    telemetryCgpa: document.getElementById('telemetry-cgpa'),
+    telemetryPing: document.getElementById('telemetry-ping'),
+    statTotalRecords: document.getElementById('stat-total-records'),
+    statActiveSub: document.getElementById('stat-active-sub'),
+    statAvgCgpa: document.getElementById('stat-avg-cgpa'),
+    statHonorsSub: document.getElementById('stat-honors-sub'),
+    statTopDept: document.getElementById('stat-top-dept'),
+    statDeptSub: document.getElementById('stat-dept-sub'),
+    statDbMode: document.getElementById('stat-db-mode'),
     
     // Header Actions
+    btnShortcuts: document.getElementById('btn-shortcuts'),
     btnToggleInspector: document.getElementById('btn-toggle-inspector'),
     btnSeedData: document.getElementById('btn-seed-data'),
     btnOpenCreateModal: document.getElementById('btn-open-create-modal'),
 
+    // Chips Nav
+    deptChipsList: document.getElementById('dept-chips-list'),
+    chipCountAll: document.getElementById('chip-count-all'),
+    chipCountComp: document.getElementById('chip-count-comp'),
+    chipCountIt: document.getElementById('chip-count-it'),
+    chipCountAids: document.getElementById('chip-count-aids'),
+    chipCountEntc: document.getElementById('chip-count-entc'),
+    chipCountMech: document.getElementById('chip-count-mech'),
+
     // Toolbar
     searchInput: document.getElementById('search-input'),
     searchClear: document.getElementById('search-clear'),
-    filterDept: document.getElementById('filter-dept'),
     filterStatus: document.getElementById('filter-status'),
     sortBy: document.getElementById('sort-by'),
     sortOrderBtn: document.getElementById('sort-order-btn'),
     sortOrderText: document.getElementById('sort-order-text'),
+    densityBtn: document.getElementById('density-btn'),
+    densityText: document.getElementById('density-text'),
+    btnExportJson: document.getElementById('btn-export-json'),
 
     // Table
+    recordsTable: document.getElementById('records-table'),
     recordsTbody: document.getElementById('records-tbody'),
     recordMetaCount: document.getElementById('record-meta-count'),
+    metaFilterIndicator: document.getElementById('meta-filter-indicator'),
     currentPage: document.getElementById('current-page'),
     totalPages: document.getElementById('total-pages'),
+    footerTotalCount: document.getElementById('footer-total-count'),
+    pageIndicator: document.getElementById('page-indicator'),
     btnPrevPage: document.getElementById('btn-prev-page'),
     btnNextPage: document.getElementById('btn-next-page'),
 
-    // Layout & Inspector
+    // Workspace & Inspector
     workspaceGrid: document.getElementById('workspace-grid'),
     inspectorDrawer: document.getElementById('inspector-drawer'),
     btnCloseInspector: document.getElementById('btn-close-inspector'),
@@ -90,80 +116,21 @@
     btnConfirmDelete: document.getElementById('btn-confirm-delete'),
     btnCloseDeleteModal: document.getElementById('btn-close-delete-modal'),
 
+    // Shortcuts Modal
+    shortcutsModal: document.getElementById('shortcuts-modal'),
+    btnCloseShortcutsModal: document.getElementById('btn-close-shortcuts-modal'),
+    btnDismissShortcuts: document.getElementById('btn-dismiss-shortcuts'),
+
     // Toast Container
     toastContainer: document.getElementById('toast-container'),
   };
 
-  // API Client with Timing & Inspector Logging
-  async function apiRequest(endpoint, options = {}) {
-    const startTime = performance.now();
-    const method = options.method || 'GET';
-    const url = endpoint.startsWith('http') ? endpoint : endpoint;
-
-    let curlCmd = `curl -X ${method} "${window.location.origin}${endpoint}"`;
-    if (options.body) {
-      curlCmd += ` \\\n  -H "Content-Type: application/json" \\\n  -d '${options.body}'`;
-    }
-
-    try {
-      const response = await fetch(endpoint, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...(options.headers || {}),
-        },
-        ...options,
-      });
-
-      const latency = Math.round(performance.now() - startTime);
-      const data = await response.json().catch(() => null);
-
-      // Log into live inspector
-      updateInspector({
-        method,
-        endpoint,
-        status: response.status,
-        statusText: response.statusText,
-        latency,
-        data,
-        curl: curlCmd,
-      });
-
-      return { ok: response.ok, status: response.status, data };
-    } catch (err) {
-      const latency = Math.round(performance.now() - startTime);
-      updateInspector({
-        method,
-        endpoint,
-        status: 0,
-        statusText: 'Network / CORS Error',
-        latency,
-        data: { error: err.message },
-        curl: curlCmd,
-      });
-      throw err;
-    }
-  }
-
-  // Update Live API Inspector
-  function updateInspector({ method, endpoint, status, statusText, latency, data, curl }) {
-    if (!el.inspectorDrawer) return;
-
-    el.inspectorEndpoint.textContent = `${method} ${endpoint}`;
-    el.inspectorLatency.textContent = `${latency}ms`;
-    el.inspectorTime.textContent = new Date().toLocaleTimeString();
-
-    // Status Badge
-    el.inspectorStatusBadge.textContent = `${status} ${statusText || ''}`.trim();
-    if (status >= 200 && status < 300) {
-      el.inspectorStatusBadge.className = 'badge badge-mono';
-    } else {
-      el.inspectorStatusBadge.className = 'badge badge-mono error';
-    }
-
-    // JSON Viewer
-    el.jsonViewer.innerHTML = `<code>${escapeHtml(JSON.stringify(data, null, 2))}</code>`;
-    el.curlViewer.innerHTML = `<code>${escapeHtml(curl)}</code>`;
+  // Helper: Get Initials from Name
+  function getInitials(name = '') {
+    const parts = name.trim().split(/\s+/);
+    if (!parts.length) return 'ST';
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
   // Escape HTML helper
@@ -197,6 +164,93 @@
     }, 3800);
   }
 
+  // API Client with Timing & Inspector Logging
+  async function apiRequest(endpoint, options = {}) {
+    const startTime = performance.now();
+    const method = options.method || 'GET';
+    const baseUrl = window.location.origin;
+
+    let curlCmd = `curl -X ${method} "${baseUrl}${endpoint}" -H "Accept: application/json"`;
+    if (options.body) {
+      curlCmd = `curl -X ${method} "${baseUrl}${endpoint}" \\\n  -H "Content-Type: application/json" \\\n  -d '${options.body}'`;
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...(options.headers || {}),
+        },
+        ...options,
+      });
+
+      const latency = Math.round(performance.now() - startTime);
+      el.telemetryPing.textContent = `${latency} ms`;
+
+      const data = await response.json().catch(() => null);
+
+      // Log into live inspector
+      updateInspector({
+        method,
+        endpoint,
+        status: response.status,
+        statusText: response.statusText,
+        latency,
+        data,
+        curl: curlCmd,
+      });
+
+      return { ok: response.ok, status: response.status, data };
+    } catch (err) {
+      const latency = Math.round(performance.now() - startTime);
+      el.telemetryPing.textContent = `Error`;
+      updateInspector({
+        method,
+        endpoint,
+        status: 0,
+        statusText: 'Network / Connection Error',
+        latency,
+        data: { error: err.message },
+        curl: curlCmd,
+      });
+      throw err;
+    }
+  }
+
+  // Update Live API Inspector
+  function updateInspector({ method, endpoint, status, statusText, latency, data, curl }) {
+    if (!el.inspectorDrawer) return;
+
+    el.inspectorEndpoint.textContent = `${method} ${endpoint}`;
+    el.inspectorLatency.textContent = `${latency}ms`;
+    el.inspectorTime.textContent = new Date().toLocaleTimeString();
+
+    // Status Badge
+    el.inspectorStatusBadge.textContent = `${status} ${statusText || ''}`.trim();
+    if (status >= 200 && status < 300) {
+      el.inspectorStatusBadge.className = 'badge badge-mono';
+    } else {
+      el.inspectorStatusBadge.className = 'badge badge-mono error';
+    }
+
+    // JSON Viewer
+    el.jsonViewer.innerHTML = `<code>${escapeHtml(JSON.stringify(data, null, 2))}</code>`;
+    el.curlViewer.innerHTML = `<code>${escapeHtml(curl)}</code>`;
+  }
+
+  // Switch Inspector Tabs
+  function setInspectorTab(tabName) {
+    state.activeInspectorTab = tabName;
+    document.querySelectorAll('.inspector-tab').forEach((tab) => {
+      tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+
+    document.getElementById('tab-content-response').classList.toggle('hidden', tabName !== 'response');
+    document.getElementById('tab-content-curl').classList.toggle('hidden', tabName !== 'curl');
+    document.getElementById('tab-content-console').classList.toggle('hidden', tabName !== 'console');
+  }
+
   // Fetch Telemetry & Database Health
   async function fetchHealthAndStats() {
     try {
@@ -209,19 +263,63 @@
         const mode = healthRes.database?.mode || 'Connected';
         el.dbPip.className = 'status-pip live';
         el.dbStatusText.textContent = `DB: ${mode}`;
+        el.statDbMode.textContent = mode;
       } else {
         el.dbPip.className = 'status-pip warning';
         el.dbStatusText.textContent = 'DB: Standalone';
+        el.statDbMode.textContent = 'Standalone Virtual';
       }
 
       if (statsRes && statsRes.success) {
-        el.telemetryCount.textContent = statsRes.data.total ?? 0;
-        el.telemetryCgpa.textContent = (statsRes.data.avgCgpa ?? 0).toFixed(2);
+        state.stats = statsRes.data;
+        updateMetricStrip(statsRes.data);
       }
     } catch {
       el.dbPip.className = 'status-pip warning';
       el.dbStatusText.textContent = 'DB: Local';
     }
+  }
+
+  // Update Metric Overview Strip
+  function updateMetricStrip(stats) {
+    const total = stats.total || 0;
+    const avgCgpa = stats.avgCgpa ? stats.avgCgpa.toFixed(2) : '0.00';
+    el.statTotalRecords.textContent = total;
+    el.statAvgCgpa.textContent = avgCgpa;
+
+    // Active status count
+    const activeEntry = (stats.byStatus || []).find((s) => s._id === 'Active');
+    const activeCount = activeEntry ? activeEntry.count : 0;
+    el.statActiveSub.textContent = `${activeCount} Active / ${total - activeCount} Other`;
+
+    // Top Department
+    if (stats.byDepartment && stats.byDepartment.length) {
+      const sortedDepts = [...stats.byDepartment].sort((a, b) => b.count - a.count);
+      const top = sortedDepts[0];
+      el.statTopDept.textContent = top._id.replace(' Engineering', ' Engg');
+      const pct = Math.round((top.count / total) * 100);
+      el.statDeptSub.textContent = `${top.count} students (${pct}%)`;
+
+      // Update Department chip count badges
+      updateChipBadges(stats.byDepartment, total);
+    } else {
+      el.statTopDept.textContent = 'General';
+      el.statDeptSub.textContent = 'None enrolled';
+    }
+  }
+
+  // Update Department Chip Badges
+  function updateChipBadges(byDept, total) {
+    el.chipCountAll.textContent = total;
+
+    const map = {};
+    byDept.forEach((d) => (map[d._id] = d.count));
+
+    el.chipCountComp.textContent = map['Computer Engineering'] || 0;
+    el.chipCountIt.textContent = map['Information Technology'] || 0;
+    el.chipCountAids.textContent = map['AI & Data Science'] || 0;
+    el.chipCountEntc.textContent = map['Electronics & Telecommunication'] || 0;
+    el.chipCountMech.textContent = map['Mechanical Engineering'] || 0;
   }
 
   // Fetch & Render Records
@@ -236,7 +334,14 @@
       limit: state.filters.limit,
     });
 
-    el.recordsTbody.innerHTML = `<tr><td colspan="8" class="td-empty">Querying database records...</td></tr>`;
+    renderSkeletonRows();
+
+    // Update filter indicator badge
+    let activeFilters = [];
+    if (state.filters.search) activeFilters.push(`"${state.filters.search}"`);
+    if (state.filters.department !== 'All') activeFilters.push(state.filters.department);
+    if (state.filters.status !== 'All') activeFilters.push(state.filters.status);
+    el.metaFilterIndicator.textContent = activeFilters.length ? `Filtered: ${activeFilters.join(', ')}` : 'Filtered: None';
 
     try {
       const { ok, data } = await apiRequest(`/api/records?${params.toString()}`);
@@ -253,6 +358,27 @@
     }
   }
 
+  // Render Shimmer Skeleton Rows while loading
+  function renderSkeletonRows() {
+    el.recordsTbody.innerHTML = Array(4)
+      .fill(0)
+      .map(
+        () => `
+        <tr class="skeleton-row">
+          <td><div class="skeleton-box" style="width: 100px;"></div></td>
+          <td><div class="skeleton-box" style="width: 180px;"></div></td>
+          <td><div class="skeleton-box" style="width: 120px;"></div></td>
+          <td><div class="skeleton-box" style="width: 40px;"></div></td>
+          <td><div class="skeleton-box" style="width: 50px;"></div></td>
+          <td><div class="skeleton-box" style="width: 70px;"></div></td>
+          <td><div class="skeleton-box" style="width: 130px;"></div></td>
+          <td><div class="skeleton-box" style="width: 110px;"></div></td>
+        </tr>
+      `
+      )
+      .join('');
+  }
+
   // Render Table Rows
   function renderRecords() {
     const { records, meta } = state;
@@ -260,48 +386,76 @@
     el.recordMetaCount.textContent = `Showing ${records.length} of ${meta.total} records`;
     el.currentPage.textContent = meta.page;
     el.totalPages.textContent = meta.totalPages || 1;
+    el.footerTotalCount.textContent = meta.total;
+    el.pageIndicator.textContent = `${meta.page} / ${meta.totalPages || 1}`;
     el.btnPrevPage.disabled = meta.page <= 1;
     el.btnNextPage.disabled = meta.page >= meta.totalPages;
+
+    // Count honors (≥ 9.0) in loaded records
+    const honorsCount = records.filter(r => (Number(r.cgpa) || 0) >= 9.0).length;
+    el.statHonorsSub.textContent = `${honorsCount} Honors (≥9.0)`;
 
     if (!records || records.length === 0) {
       el.recordsTbody.innerHTML = `
         <tr>
           <td colspan="8" class="td-empty">
-            No records matched your search/filter criteria.
-            <div style="margin-top: 0.5rem;">
+            <div style="font-weight: 600; margin-bottom: 0.25rem;">No matching student records found</div>
+            <div class="text-secondary" style="margin-bottom: 0.75rem;">Adjust your search or active department filters to view records.</div>
+            <div>
               <button type="button" class="btn btn-secondary btn-sm" id="btn-reset-filters">Reset Filters</button>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-empty-seed" style="margin-left: 0.5rem;">Seed Sample Students</button>
             </div>
           </td>
         </tr>
       `;
       const resetBtn = document.getElementById('btn-reset-filters');
       if (resetBtn) resetBtn.addEventListener('click', resetFilters);
+      const emptySeedBtn = document.getElementById('btn-empty-seed');
+      if (emptySeedBtn) emptySeedBtn.addEventListener('click', seedSampleData);
       return;
     }
 
     el.recordsTbody.innerHTML = records
       .map((r) => {
-        const statusClass = (r.enrollmentStatus || 'Active').toLowerCase().replace(' ', '-');
+        const statusClass = (r.enrollmentStatus || 'Active').toLowerCase().replace(/\s+/g, '-');
+        const cgpaVal = Number(r.cgpa || 0);
+        const isHonors = cgpaVal >= 9.0;
+        const initials = getInitials(r.fullName);
+
         const courses = Array.isArray(r.courses) && r.courses.length
-          ? r.courses.map(c => `<span class="course-tag">${escapeHtml(c)}</span>`).join('')
-          : '<span class="text-dim">None</span>';
+          ? r.courses.map((c) => `<span class="course-tag">${escapeHtml(c)}</span>`).join('')
+          : '<span class="text-muted">None</span>';
 
         return `
           <tr data-id="${r._id || r.studentId}">
-            <td class="prn-cell font-mono">${escapeHtml(r.studentId)}</td>
+            <td class="prn-cell font-mono">
+              <div class="prn-cell-wrap">
+                <span>${escapeHtml(r.studentId)}</span>
+                <button type="button" class="btn-copy-prn" title="Copy PRN" data-prn="${r.studentId}">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
+              </div>
+            </td>
             <td>
-              <div class="student-info">
-                <span class="student-name">${escapeHtml(r.fullName)}</span>
-                <span class="student-email">${escapeHtml(r.email)}</span>
+              <div class="student-info-cell">
+                <div class="student-avatar">${initials}</div>
+                <div class="student-meta">
+                  <span class="student-name">${escapeHtml(r.fullName)}</span>
+                  <span class="student-email">${escapeHtml(r.email)}</span>
+                </div>
               </div>
             </td>
             <td><span class="badge-dept">${escapeHtml(r.department)}</span></td>
             <td class="font-mono">Sem ${r.semester}</td>
-            <td><span class="badge-cgpa">${Number(r.cgpa || 0).toFixed(2)}</span></td>
+            <td>
+              <div class="cgpa-cell">
+                <span class="badge-cgpa ${isHonors ? 'honors' : ''}">${cgpaVal.toFixed(2)}</span>
+              </div>
+            </td>
             <td><span class="badge-status ${statusClass}">${escapeHtml(r.enrollmentStatus || 'Active')}</span></td>
             <td><div class="courses-pills">${courses}</div></td>
             <td class="td-actions">
-              <button type="button" class="table-action-btn btn-view" title="Inspect Record in JSON Console" data-id="${r._id}">View</button>
+              <button type="button" class="table-action-btn btn-view" title="Inspect Record in JSON Console" data-id="${r._id}">Inspect</button>
               <button type="button" class="table-action-btn btn-edit" title="Edit Record" data-id="${r._id}">Edit</button>
               <button type="button" class="table-action-btn btn-delete" title="Delete Record" data-id="${r._id}" data-prn="${r.studentId}">Delete</button>
             </td>
@@ -320,10 +474,39 @@
 
     el.searchInput.value = '';
     el.searchClear.classList.add('hidden');
-    el.filterDept.value = 'All';
     el.filterStatus.value = 'All';
 
+    // Update active chip
+    document.querySelectorAll('.chip-item').forEach((c) => {
+      c.classList.toggle('active', c.dataset.dept === 'All');
+    });
+
     loadRecords();
+  }
+
+  // Seed sample data helper
+  async function seedSampleData() {
+    const { ok, data } = await apiRequest('/api/records/seed', { method: 'POST' });
+    if (ok && data.success) {
+      showToast(`Database seeded with ${data.count} student records!`, 'success');
+      await loadRecords();
+      await fetchHealthAndStats();
+    }
+  }
+
+  // Export current records as JSON download
+  function exportRecordsAsJson() {
+    const jsonStr = JSON.stringify(state.records, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `student-records-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${state.records.length} records to JSON`);
   }
 
   // Open Modal for Create or Edit
@@ -412,8 +595,8 @@
       if (ok && data.success) {
         showToast(
           isEdit
-            ? `Student ${payload.studentId} updated successfully`
-            : `Student ${payload.studentId} created in database`,
+            ? `Record ${payload.studentId} updated successfully`
+            : `Record ${payload.studentId} created in database`,
           'success'
         );
         closeRecordModal();
@@ -464,8 +647,22 @@
     }
   }
 
+  // Shortcuts Modal
+  function openShortcutsModal() {
+    el.shortcutsModal.classList.remove('hidden');
+  }
+
+  function closeShortcutsModal() {
+    el.shortcutsModal.classList.add('hidden');
+  }
+
   // Setup Event Listeners
   function initEventListeners() {
+    // Shortcuts Modal
+    el.btnShortcuts.addEventListener('click', openShortcutsModal);
+    el.btnCloseShortcutsModal.addEventListener('click', closeShortcutsModal);
+    el.btnDismissShortcuts.addEventListener('click', closeShortcutsModal);
+
     // Inspector Toggle
     el.btnToggleInspector.addEventListener('click', () => {
       state.isInspectorOpen = !state.isInspectorOpen;
@@ -479,27 +676,32 @@
       el.inspectorDrawer.classList.add('hidden');
     });
 
-    // Seed Data
+    // Inspector Tab Switching
+    document.querySelectorAll('.inspector-tab').forEach((tab) => {
+      tab.addEventListener('click', () => setInspectorTab(tab.dataset.tab));
+    });
+
+    // Seed Data Action
     el.btnSeedData.addEventListener('click', async () => {
-      if (confirm('Reset and re-seed database with benchmark student records?')) {
-        const { ok, data } = await apiRequest('/api/records/seed', { method: 'POST' });
-        if (ok && data.success) {
-          showToast(`Database seeded with ${data.count} student records!`, 'success');
-          await loadRecords();
-          await fetchHealthAndStats();
-        }
+      if (confirm('Re-seed database with benchmark student academic records?')) {
+        await seedSampleData();
       }
     });
 
-    // Quick Test Endpoint Chips in Inspector
-    document.querySelectorAll('.btn-chip').forEach((btn) => {
+    // Console REST Buttons
+    document.querySelectorAll('.btn-console-call').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const api = btn.dataset.api;
         if (api === 'health') await apiRequest('/api/health');
         else if (api === 'stats') await apiRequest('/api/stats');
         else if (api === 'records') await apiRequest('/api/records?limit=5');
+        else if (api === 'seed') await seedSampleData();
+        setInspectorTab('response');
       });
     });
+
+    // Export JSON
+    el.btnExportJson.addEventListener('click', exportRecordsAsJson);
 
     // Copy JSON / cURL
     el.btnCopyJson.addEventListener('click', () => {
@@ -514,7 +716,28 @@
       showToast('cURL command copied to clipboard');
     });
 
-    // Search Input with Debounce
+    // Density Toggle
+    el.densityBtn.addEventListener('click', () => {
+      state.isCompactDensity = !state.isCompactDensity;
+      el.recordsTable.classList.toggle('compact', state.isCompactDensity);
+      el.densityText.textContent = state.isCompactDensity ? 'Compact' : 'Normal';
+      showToast(`Table density set to ${state.isCompactDensity ? 'Compact' : 'Normal'}`);
+    });
+
+    // Department Quick Chips Filter
+    el.deptChipsList.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip-item');
+      if (!chip) return;
+
+      document.querySelectorAll('.chip-item').forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      state.filters.department = chip.dataset.dept;
+      state.filters.page = 1;
+      loadRecords();
+    });
+
+    // Search Input with Debounce & Clear
     el.searchInput.addEventListener('input', (e) => {
       const val = e.target.value.trim();
       el.searchClear.classList.toggle('hidden', val.length === 0);
@@ -532,36 +755,30 @@
       state.filters.search = '';
       state.filters.page = 1;
       loadRecords();
+      el.searchInput.focus();
     });
 
-    // Department Filter
-    el.filterDept.addEventListener('change', (e) => {
-      state.filters.department = e.target.value;
-      state.filters.page = 1;
-      loadRecords();
-    });
-
-    // Status Filter
+    // Status Filter Dropdown
     el.filterStatus.addEventListener('change', (e) => {
       state.filters.status = e.target.value;
       state.filters.page = 1;
       loadRecords();
     });
 
-    // Sort By Column
+    // Sort Column Dropdown
     el.sortBy.addEventListener('change', (e) => {
       state.filters.sortBy = e.target.value;
       loadRecords();
     });
 
-    // Sort Order Toggle
+    // Sort Order Toggle Button
     el.sortOrderBtn.addEventListener('click', () => {
       state.filters.order = state.filters.order === 'asc' ? 'desc' : 'asc';
       el.sortOrderText.textContent = state.filters.order === 'asc' ? 'Asc' : 'Desc';
       loadRecords();
     });
 
-    // Pagination Controls
+    // Pagination
     el.btnPrevPage.addEventListener('click', () => {
       if (state.filters.page > 1) {
         state.filters.page--;
@@ -578,6 +795,15 @@
 
     // Table Actions (Delegated)
     el.recordsTbody.addEventListener('click', async (e) => {
+      // Copy PRN
+      const copyBtn = e.target.closest('.btn-copy-prn');
+      if (copyBtn) {
+        const prn = copyBtn.dataset.prn;
+        navigator.clipboard.writeText(prn);
+        showToast(`Copied ${prn} to clipboard`);
+        return;
+      }
+
       const viewBtn = e.target.closest('.btn-view');
       const editBtn = e.target.closest('.btn-edit');
       const deleteBtn = e.target.closest('.btn-delete');
@@ -587,6 +813,7 @@
         state.isInspectorOpen = true;
         el.workspaceGrid.classList.add('with-inspector');
         el.inspectorDrawer.classList.remove('hidden');
+        setInspectorTab('response');
         await apiRequest(`/api/records/${id}`);
       } else if (editBtn) {
         const id = editBtn.dataset.id;
@@ -609,11 +836,41 @@
     el.btnCloseDeleteModal.addEventListener('click', closeDeleteModal);
     el.btnConfirmDelete.addEventListener('click', confirmDeleteRecord);
 
-    // Keyboard Shortcuts (Esc to close modal)
+    // Global Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
+      // Don't trigger hotkeys if typing in an input
+      const isInputActive = ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName);
+
       if (e.key === 'Escape') {
         if (!el.recordModal.classList.contains('hidden')) closeRecordModal();
-        if (!el.deleteModal.classList.contains('hidden')) closeDeleteModal();
+        else if (!el.deleteModal.classList.contains('hidden')) closeDeleteModal();
+        else if (!el.shortcutsModal.classList.contains('hidden')) closeShortcutsModal();
+        else if (el.searchInput.value) {
+          el.searchInput.value = '';
+          el.searchClear.classList.add('hidden');
+          state.filters.search = '';
+          loadRecords();
+        }
+        return;
+      }
+
+      if (!isInputActive) {
+        if (e.key === '/' || (e.metaKey && e.key === 'k')) {
+          e.preventDefault();
+          el.searchInput.focus();
+        } else if (e.key === 'n' || e.key === 'N') {
+          e.preventDefault();
+          openRecordModal(null);
+        } else if (e.key === 'i' || e.key === 'I') {
+          e.preventDefault();
+          el.btnToggleInspector.click();
+        } else if (e.key === 'd' || e.key === 'D') {
+          e.preventDefault();
+          el.densityBtn.click();
+        } else if (e.key === '?') {
+          e.preventDefault();
+          openShortcutsModal();
+        }
       }
     });
   }

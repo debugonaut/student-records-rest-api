@@ -537,3 +537,4 @@ if os.path.exists(tmp_html):
 
 print("\nAll Postman test verification screenshots successfully generated in:")
 print(f" -> {SCREENSHOT_DIR}\n")
+

@@ -166,3 +166,4 @@ if tests_passed == tests_total:
 else:
     print("\033[91mSOME TESTS FAILED!\033[0m\n")
     sys.exit(1)
+

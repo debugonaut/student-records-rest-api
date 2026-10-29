@@ -236,3 +236,4 @@ In this laboratory practical:
 4. Executed an automated Postman test collection with 25 assertions, achieving a 100% pass rate.
 5. Deployed the application to a cloud web hosting platform (Vercel) and validated public availability.
 6. Crafted an operational dashboard adhering to the Impeccable design system with live JSON inspection.
+

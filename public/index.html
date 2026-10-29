@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Records Registry — RESTful API Console</title>
+  <title>Student Records Registry — RESTful API & Telemetry Console</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,12 +17,14 @@
     <header class="app-header">
       <div class="header-left">
         <div class="brand-block">
-          <svg class="brand-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-          </svg>
-          <div>
+          <div class="brand-badge">
+            <svg class="brand-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
             <h1 class="brand-title">Student Records Registry</h1>
             <p class="brand-subtitle">RESTful Database Management & API Telemetry Console</p>
           </div>
@@ -32,41 +34,49 @@
       <div class="header-right">
         <!-- Telemetry Indicators -->
         <div class="telemetry-bar">
-          <div class="telemetry-pill" id="db-status-pill" title="Database Connection Status">
+          <div class="telemetry-pill" id="db-status-pill" title="Database Engine Connectivity">
             <span class="status-pip live" id="db-pip"></span>
-            <span class="telemetry-label" id="db-status-text">Database: Connecting...</span>
+            <span class="telemetry-label" id="db-status-text">DB: Connecting...</span>
           </div>
-          <div class="telemetry-pill" title="Total Registered Records">
-            <span class="telemetry-dim">Records:</span>
-            <span class="telemetry-val" id="telemetry-count">--</span>
-          </div>
-          <div class="telemetry-pill" title="Average CGPA across all students">
-            <span class="telemetry-dim">Avg CGPA:</span>
-            <span class="telemetry-val" id="telemetry-cgpa">--</span>
+          <div class="telemetry-pill" title="Roundtrip HTTP latency">
+            <span class="telemetry-dim">Ping:</span>
+            <span class="telemetry-val" id="telemetry-ping">-- ms</span>
           </div>
         </div>
 
         <!-- Global Action Group -->
         <div class="header-actions">
-          <button type="button" class="btn btn-secondary" id="btn-toggle-inspector">
+          <button type="button" class="btn btn-secondary btn-icon-only" id="btn-shortcuts" title="Keyboard Shortcuts (?)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </button>
+          
+          <button type="button" class="btn btn-secondary" id="btn-toggle-inspector" title="Toggle REST API & JSON Inspector (I)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
               <polyline points="8 6 2 12 8 18"></polyline>
             </svg>
             API Inspector
+            <span class="kbd-hint">I</span>
           </button>
-          <button type="button" class="btn btn-secondary" id="btn-seed-data" title="Reset and populate database with sample students">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+          <button type="button" class="btn btn-secondary" id="btn-seed-data" title="Seed benchmark student records into database">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             Seed Data
           </button>
-          <button type="button" class="btn btn-primary" id="btn-open-create-modal">
+
+          <button type="button" class="btn btn-primary" id="btn-open-create-modal" title="Add new student record (N)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            New Student Record
+            New Record
+            <span class="kbd-hint kbd-primary">N</span>
           </button>
         </div>
       </div>
@@ -74,7 +84,55 @@
 
     <!-- Main Workspace -->
     <main class="app-main">
-      
+
+      <!-- Executive Metric Strip (High-Density Telemetry) -->
+      <section class="metric-strip" aria-label="System Metrics">
+        <div class="metric-cell">
+          <div class="metric-meta">
+            <span class="metric-label">Total Registered</span>
+            <span class="metric-sub" id="stat-active-sub">-- Active</span>
+          </div>
+          <div class="metric-number font-mono" id="stat-total-records">--</div>
+        </div>
+
+        <div class="metric-cell">
+          <div class="metric-meta">
+            <span class="metric-label">Cohort Mean CGPA</span>
+            <span class="metric-sub" id="stat-honors-sub">-- Honors (≥9.0)</span>
+          </div>
+          <div class="metric-number font-mono" id="stat-avg-cgpa">--</div>
+        </div>
+
+        <div class="metric-cell">
+          <div class="metric-meta">
+            <span class="metric-label">Leading Department</span>
+            <span class="metric-sub" id="stat-dept-sub">Highest enrollment</span>
+          </div>
+          <div class="metric-text" id="stat-top-dept">--</div>
+        </div>
+
+        <div class="metric-cell">
+          <div class="metric-meta">
+            <span class="metric-label">Database Protocol</span>
+            <span class="metric-sub" id="stat-db-sub">Mongoose v8.8</span>
+          </div>
+          <div class="metric-text font-mono" id="stat-db-mode">MongoDB Engine</div>
+        </div>
+      </section>
+
+      <!-- Department Quick Filter Chips -->
+      <nav class="chips-nav" aria-label="Department Quick Filters">
+        <div class="chips-label">Department:</div>
+        <div class="chips-list" id="dept-chips-list">
+          <button type="button" class="chip-item active" data-dept="All">All <span class="chip-badge" id="chip-count-all">0</span></button>
+          <button type="button" class="chip-item" data-dept="Computer Engineering">Computer <span class="chip-badge" id="chip-count-comp">0</span></button>
+          <button type="button" class="chip-item" data-dept="Information Technology">IT <span class="chip-badge" id="chip-count-it">0</span></button>
+          <button type="button" class="chip-item" data-dept="AI & Data Science">AI & DS <span class="chip-badge" id="chip-count-aids">0</span></button>
+          <button type="button" class="chip-item" data-dept="Electronics & Telecommunication">EnTC <span class="chip-badge" id="chip-count-entc">0</span></button>
+          <button type="button" class="chip-item" data-dept="Mechanical Engineering">Mechanical <span class="chip-badge" id="chip-count-mech">0</span></button>
+        </div>
+      </nav>
+
       <!-- Operations Toolbar -->
       <section class="toolbar-section">
         <div class="search-box">
@@ -83,24 +141,12 @@
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           <input type="text" id="search-input" placeholder="Search by name, PRN, or email..." autocomplete="off">
-          <button type="button" id="search-clear" class="btn-clear hidden" title="Clear search">&times;</button>
+          <span class="search-kbd-hint" id="search-kbd-hint">/</span>
+          <button type="button" id="search-clear" class="btn-clear hidden" title="Clear search (Esc)">&times;</button>
         </div>
 
         <div class="filters-group">
-          <!-- Department Filter -->
-          <div class="filter-item">
-            <label for="filter-dept">Department:</label>
-            <select id="filter-dept" class="select-control">
-              <option value="All">All Departments</option>
-              <option value="Computer Engineering">Computer Engineering</option>
-              <option value="Information Technology">Information Technology</option>
-              <option value="AI & Data Science">AI & Data Science</option>
-              <option value="Electronics & Telecommunication">Electronics & Telecom</option>
-              <option value="Mechanical Engineering">Mechanical Engineering</option>
-            </select>
-          </div>
-
-          <!-- Status Filter -->
+          <!-- Status Filter Dropdown -->
           <div class="filter-item">
             <label for="filter-status">Status:</label>
             <select id="filter-status" class="select-control">
@@ -114,21 +160,41 @@
 
           <!-- Sort Column -->
           <div class="filter-item">
-            <label for="sort-by">Sort By:</label>
+            <label for="sort-by">Sort:</label>
             <select id="sort-by" class="select-control">
               <option value="createdAt">Date Created</option>
-              <option value="fullName">Student Name</option>
-              <option value="cgpa">CGPA (Academic)</option>
+              <option value="fullName">Full Name</option>
+              <option value="cgpa">CGPA Score</option>
               <option value="studentId">PRN Identifier</option>
             </select>
           </div>
 
           <!-- Sort Order Toggle -->
           <button type="button" id="sort-order-btn" class="btn btn-icon" title="Toggle Sort Order (Descending / Ascending)">
-            <svg id="sort-icon-desc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg id="sort-icon-desc" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 6h18M6 12h12m-9 6h6"/>
             </svg>
             <span id="sort-order-text">Desc</span>
+          </button>
+
+          <!-- Table Density Toggle -->
+          <button type="button" id="density-btn" class="btn btn-icon" title="Toggle Table Density (Comfortable / Compact)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <span id="density-text">Compact</span>
+          </button>
+
+          <!-- Export JSON -->
+          <button type="button" id="btn-export-json" class="btn btn-secondary" title="Export current dataset as JSON">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export JSON
           </button>
         </div>
       </section>
@@ -139,27 +205,33 @@
         <!-- Table Card -->
         <section class="table-container">
           <div class="table-header-meta">
-            <span class="meta-count" id="record-meta-count">Showing 0 records</span>
-            <span class="meta-endpoint">API: <code>GET /api/records</code></span>
+            <div class="meta-left">
+              <span class="meta-count" id="record-meta-count">Showing 0 records</span>
+              <span class="meta-badge" id="meta-filter-indicator">Filtered: None</span>
+            </div>
+            <div class="meta-right">
+              <span class="meta-endpoint">Route: <code>GET /api/records</code></span>
+            </div>
           </div>
 
-          <div class="table-wrapper">
-            <table class="records-table">
+          <div class="table-wrapper" id="table-wrapper">
+            <table class="records-table compact" id="records-table">
               <thead>
                 <tr>
-                  <th>PRN / ID</th>
-                  <th>Student Name & Email</th>
-                  <th>Department</th>
-                  <th>Sem</th>
-                  <th>CGPA</th>
-                  <th>Status</th>
-                  <th>Enrolled Courses</th>
+                  <th class="th-prn">PRN / ID</th>
+                  <th class="th-student">Student Name & Email</th>
+                  <th class="th-dept">Department</th>
+                  <th class="th-sem">Sem</th>
+                  <th class="th-cgpa">CGPA</th>
+                  <th class="th-status">Status</th>
+                  <th class="th-courses">Enrolled Courses</th>
                   <th class="th-actions">Actions</th>
                 </tr>
               </thead>
               <tbody id="records-tbody">
-                <tr>
-                  <td colspan="8" class="td-empty">Loading records from database...</td>
+                <!-- Skeleton Loading Rows injected dynamically -->
+                <tr class="skeleton-row">
+                  <td colspan="8" class="td-empty">Initializing student records database...</td>
                 </tr>
               </tbody>
             </table>
@@ -168,29 +240,42 @@
           <!-- Table Footer Pagination -->
           <div class="table-footer">
             <div class="footer-info">
-              Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+              Showing page <strong id="current-page">1</strong> of <strong id="total-pages">1</strong>
+              <span class="text-dim">(&bull; <span id="footer-total-count">0</span> total records in database)</span>
             </div>
             <div class="pagination-controls">
               <button type="button" class="btn btn-secondary btn-sm" id="btn-prev-page" disabled>Previous</button>
+              <span class="page-indicator font-mono" id="page-indicator">1 / 1</span>
               <button type="button" class="btn btn-secondary btn-sm" id="btn-next-page" disabled>Next</button>
             </div>
           </div>
         </section>
 
         <!-- Live API Inspector Drawer -->
-        <aside class="inspector-drawer hidden" id="inspector-drawer">
+        <aside class="inspector-drawer hidden" id="inspector-drawer" aria-label="API Inspector Console">
           <div class="inspector-header">
             <div class="inspector-title-group">
-              <span class="inspector-title">REST API Telemetry & JSON Console</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <span class="inspector-title">API & Response Telemetry</span>
               <span class="badge badge-mono" id="inspector-status-badge">200 OK</span>
             </div>
-            <button type="button" class="btn-close" id="btn-close-inspector" title="Close Inspector">&times;</button>
+            <button type="button" class="btn-close" id="btn-close-inspector" title="Close Inspector (Esc)">&times;</button>
+          </div>
+
+          <!-- Inspector Tabs -->
+          <div class="inspector-tabs">
+            <button type="button" class="inspector-tab active" data-tab="response">Response JSON</button>
+            <button type="button" class="inspector-tab" data-tab="curl">cURL Syntax</button>
+            <button type="button" class="inspector-tab" data-tab="console">REST Tester</button>
           </div>
 
           <div class="inspector-meta">
             <div class="inspector-row">
-              <span class="meta-key">Method & Endpoint:</span>
-              <span class="meta-val meta-method" id="inspector-endpoint">GET /api/records</span>
+              <span class="meta-key">Endpoint:</span>
+              <span class="meta-val meta-method font-mono" id="inspector-endpoint">GET /api/records</span>
             </div>
             <div class="inspector-row">
               <span class="meta-key">Roundtrip Latency:</span>
@@ -202,29 +287,49 @@
             </div>
           </div>
 
-          <!-- Quick Interactive API Buttons -->
-          <div class="inspector-quick-actions">
-            <span class="quick-title">Quick Test Endpoints:</span>
-            <div class="quick-btns">
-              <button type="button" class="btn-chip" data-api="health">GET /health</button>
-              <button type="button" class="btn-chip" data-api="stats">GET /stats</button>
-              <button type="button" class="btn-chip" data-api="records">GET /records</button>
-            </div>
-          </div>
-
-          <div class="inspector-body">
+          <!-- Tab Content 1: Response JSON -->
+          <div class="inspector-tab-content" id="tab-content-response">
             <div class="code-toolbar">
-              <span class="code-label">Live Response Payload (JSON)</span>
+              <span class="code-label">Parsed Payload (JSON)</span>
               <button type="button" class="btn btn-sm btn-subtle" id="btn-copy-json">Copy JSON</button>
             </div>
-            <pre class="json-viewer" id="json-viewer"><code>{\n  "message": "Click on any table action or quick test button to inspect API payload"\n}</code></pre>
+            <pre class="json-viewer" id="json-viewer"><code>{\n  "message": "Click on any table action or REST tester button to inspect live API payload"\n}</code></pre>
+          </div>
 
-            <div class="code-toolbar mt-2">
-              <span class="code-label">cURL Request Syntax</span>
+          <!-- Tab Content 2: cURL -->
+          <div class="inspector-tab-content hidden" id="tab-content-curl">
+            <div class="code-toolbar">
+              <span class="code-label">Executable cURL Command</span>
               <button type="button" class="btn btn-sm btn-subtle" id="btn-copy-curl">Copy cURL</button>
             </div>
-            <pre class="curl-viewer font-mono" id="curl-viewer"><code>curl -X GET "http://localhost:5000/api/records" -H "Accept: application/json"</code></pre>
+            <pre class="curl-viewer font-mono" id="curl-viewer"><code>curl -X GET "http://localhost:5001/api/records" -H "Accept: application/json"</code></pre>
           </div>
+
+          <!-- Tab Content 3: Quick REST Tester -->
+          <div class="inspector-tab-content hidden" id="tab-content-console">
+            <div class="console-box">
+              <div class="section-title">Execute Quick REST Calls:</div>
+              <div class="console-buttons-grid">
+                <button type="button" class="btn-console-call" data-api="health">
+                  <span class="console-verb get">GET</span>
+                  <span class="console-path">/api/health</span>
+                </button>
+                <button type="button" class="btn-console-call" data-api="stats">
+                  <span class="console-verb get">GET</span>
+                  <span class="console-path">/api/stats</span>
+                </button>
+                <button type="button" class="btn-console-call" data-api="records">
+                  <span class="console-verb get">GET</span>
+                  <span class="console-path">/api/records?limit=5</span>
+                </button>
+                <button type="button" class="btn-console-call" data-api="seed">
+                  <span class="console-verb post">POST</span>
+                  <span class="console-path">/api/records/seed</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
         </aside>
 
       </div>
@@ -234,7 +339,10 @@
     <div class="modal-backdrop hidden" id="record-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-card">
         <div class="modal-header">
-          <h2 class="modal-title" id="modal-title">Create New Student Record</h2>
+          <div class="modal-header-text">
+            <h2 class="modal-title" id="modal-title">Create New Student Record</h2>
+            <p class="modal-subtitle">Commit structured academic document to database</p>
+          </div>
           <button type="button" class="btn-close" id="btn-close-modal" aria-label="Close dialog">&times;</button>
         </div>
 
@@ -260,8 +368,8 @@
 
             <!-- Institutional Email -->
             <div class="form-field">
-              <label for="input-email" class="field-label">Email Address <span class="req">*</span></label>
-              <input type="email" id="input-email" class="input-control font-mono" placeholder="student@college.edu" required>
+              <label for="input-email" class="field-label">Institutional Email <span class="req">*</span></label>
+              <input type="email" id="input-email" class="input-control font-mono" placeholder="aadesh.khande@college.edu" required>
               <span class="field-error" id="err-email"></span>
             </div>
 
@@ -315,7 +423,7 @@
             <!-- Remarks -->
             <div class="form-field full-width">
               <label for="input-remarks" class="field-label">Academic Remarks</label>
-              <input type="text" id="input-remarks" class="input-control" placeholder="Dean honors list recipient">
+              <input type="text" id="input-remarks" class="input-control" placeholder="Good academic standing; departmental rank holder">
             </div>
 
           </div>
@@ -332,16 +440,63 @@
     <div class="modal-backdrop hidden" id="delete-modal" role="dialog" aria-modal="true">
       <div class="modal-card modal-confirm">
         <div class="modal-header">
-          <h2 class="modal-title">Confirm Record Deletion</h2>
+          <div class="modal-header-text">
+            <h2 class="modal-title">Confirm Record Deletion</h2>
+            <p class="modal-subtitle">Permanent database removal</p>
+          </div>
           <button type="button" class="btn-close" id="btn-close-delete-modal">&times;</button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to permanently delete student record <strong id="delete-prn-display" class="font-mono">--</strong>?</p>
-          <p class="text-secondary mt-1">This operation sends an HTTP <code>DELETE /api/records/:id</code> request and removes the document from the database.</p>
+          <p>Are you sure you want to permanently delete student record <strong id="delete-prn-display" class="font-mono text-primary">--</strong>?</p>
+          <p class="text-secondary mt-1">This operation executes an HTTP <code>DELETE /api/records/:id</code> request and drops the document from MongoDB.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
           <button type="button" class="btn btn-danger" id="btn-confirm-delete">Delete Record</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal-backdrop hidden" id="shortcuts-modal" role="dialog" aria-modal="true">
+      <div class="modal-card modal-confirm">
+        <div class="modal-header">
+          <div class="modal-header-text">
+            <h2 class="modal-title">Keyboard Shortcuts</h2>
+            <p class="modal-subtitle">Fast navigation for operations</p>
+          </div>
+          <button type="button" class="btn-close" id="btn-close-shortcuts-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="shortcuts-list">
+            <div class="shortcut-item">
+              <span class="shortcut-desc">Focus Search input</span>
+              <span class="kbd-pill">/</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-desc">Create New Record</span>
+              <span class="kbd-pill">N</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-desc">Toggle API Inspector</span>
+              <span class="kbd-pill">I</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-desc">Toggle Density (Compact/Normal)</span>
+              <span class="kbd-pill">D</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-desc">Close Modal / Dismiss Dialog</span>
+              <span class="kbd-pill">Esc</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="shortcut-desc">Open Keyboard Shortcuts</span>
+              <span class="kbd-pill">?</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-dismiss-shortcuts">Close</button>
         </div>
       </div>
     </div>
