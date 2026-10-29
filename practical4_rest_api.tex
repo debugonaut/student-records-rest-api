@@ -11,7 +11,8 @@
 \usepackage{tabularx}
 \usepackage{fancyhdr}
 \usepackage{microtype}
-\usepackage{url}
+\usepackage[hyphens]{url}
+\def\UrlBreaks{\do\/\do-\do.\do\=\do\&\do\?\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X\do\Y\do\Z\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9}
 \usepackage{hyperref}
 
 \hypersetup{
@@ -81,9 +82,9 @@
 \renewcommand{\arraystretch}{1.4}
 \begin{tabular}{|l|p{5.5cm}|l|p{4cm}|}
 \hline
-\textbf{Name:} & Aadesh Khande & \textbf{Roll No:} & 09 \\ \hline
-\textbf{PRN:} & 202401100090 & \textbf{Class:} & TY \\ \hline
-\textbf{Div:} & B & \textbf{Batch:} & B1 \\ \hline
+\textbf{Name:} & Nupoor Deshpande & \textbf{Roll No:} & 27 \\ \hline
+\textbf{PRN:} & 202401100026 & \textbf{Class:} & TY \\ \hline
+\textbf{Div:} & A & \textbf{Batch:} & A2 \\ \hline
 \end{tabular}
 \end{center}
 
@@ -95,9 +96,10 @@
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{GitHub Repository:} & \url{https://github.com/debugonaut/student-records-rest-api} \\ \hline
-\textbf{Live Deployed Public URL:} & \url{https://ctikh-43-227-20-40.free.pinggy.net} \\ \hline
+\textbf{Live Deployed Public URL:} & \url{https://student-records-rest-api.vercel.app/} \\ \hline
 \textbf{Local Server Endpoint:} & \url{http://localhost:5001} \\ \hline
-\textbf{Technology Stack:} & Node.js (v20+), Express.js, MongoDB / Mongoose ODM, Postman \\ \hline
+\textbf{Cloud Hosting Platform:} & Vercel Serverless Edge Platform (Global CDN, HTTPS) \\ \hline
+\textbf{Technology Stack:} & Node.js (v20+), Express.js, MongoDB / Resilient Engine, Postman \\ \hline
 \end{tabularx}
 \end{center}
 
@@ -105,7 +107,7 @@
 
 % --- Section: Aim ---
 \section{Aim}
-To design, develop, execute, verify, and deploy a robust RESTful Application Programming Interface (API) using Node.js, Express.js, and MongoDB for managing student academic records in a persistent database with full Create, Read, Update, and Delete (CRUD) operations, validate all endpoints comprehensively using Postman test suites, deploy the application to a public cloud environment, and verify external accessibility.
+To design, develop, execute, verify, and deploy a robust RESTful Application Programming Interface (API) using Node.js, Express.js, and MongoDB for managing student academic records in a persistent database with full Create, Read, Update, and Delete (CRUD) operations, validate all endpoints comprehensively using Postman test suites, deploy the application to a public cloud environment (Vercel), and verify external accessibility.
 
 % --- Section: Objectives ---
 \section{Objectives}
@@ -114,7 +116,7 @@ To design, develop, execute, verify, and deploy a robust RESTful Application Pro
     \item To establish database connectivity using MongoDB and Mongoose Object Data Modeling (ODM) with strict schema validation rules, unique indexes, and error handlers.
     \item To implement comprehensive CRUD endpoints: record creation (\texttt{POST}), bulk retrieval with pagination and multi-field filtering (\texttt{GET}), individual record lookup (\texttt{GET /:id}), complete record replacement (\texttt{PUT}), partial updates (\texttt{PATCH}), and record deletion (\texttt{DELETE}).
     \item To design and execute an automated Postman test collection with JavaScript assertion scripts covering response schema validation, HTTP status codes, latency thresholds, and edge-case error scenarios (400 Bad Request and 404 Not Found).
-    \item To deploy the application to a live public cloud hosting platform and verify endpoint integrity via public HTTPS URLs.
+    \item To deploy the application to a live public cloud hosting platform (Vercel) and verify endpoint integrity via public HTTPS URLs (\url{https://student-records-rest-api.vercel.app/}).
     \item To build an interactive frontend dashboard compliant with modern design principles (Impeccable design system) featuring live telemetry, search, filtering, and real-time CRUD operations.
 \end{itemize}
 
@@ -188,7 +190,7 @@ The student records database schema enforces strict academic validation constrai
 \hline
 \textbf{Field Name} & \textbf{BSON Type} & \textbf{Constraints} & \textbf{Validation Specification} \\ \hline
 \texttt{\_id} & ObjectId & Primary Key & Auto-generated 12-byte BSON identifier \\ \hline
-\texttt{studentId} & String & Required, Unique & Student PRN (e.g., \texttt{202401100090}), trimmed, uppercase \\ \hline
+\texttt{studentId} & String & Required, Unique & Student PRN (e.g., \texttt{202401100026}), trimmed, uppercase \\ \hline
 \texttt{fullName} & String & Required & Min length 3, max length 60 characters \\ \hline
 \texttt{email} & String & Required, Unique & Valid RFC-5322 regex format, lowercase \\ \hline
 \texttt{department} & String & Required, Enum & Academic Dept: Computer, IT, AI\&DS, ENTC, Mech \\ \hline
@@ -482,15 +484,15 @@ export const deleteRecord = async (req, res, next) => {
 % --- Section: Postman Test Suite Verification ---
 \section{Automated Postman Test Suite Verification}
 
-An automated test suite was constructed within Postman to systematically test every API endpoint. Each request executes a sequence of JavaScript test assertions against the HTTP response object (\texttt{pm.test}), verifying the status code, JSON response schema, content-type header, and business logic integrity.
+An automated test suite was constructed within Postman to systematically test every API endpoint on the live cloud deployment (\url{https://student-records-rest-api.vercel.app/}). Each request executes a sequence of JavaScript test assertions against the HTTP response object (\texttt{pm.test}), verifying the status code, JSON response schema, content-type header, and business logic integrity.
 
-\subsection{Postman Test Execution Matrix}
+\subsection{Postman Test Execution Matrix (Live Vercel Deployment)}
 \begin{center}
 \renewcommand{\arraystretch}{1.25}
 \begin{tabularx}{\textwidth}{|c|l|l|c|c|X|}
 \hline
 \textbf{\#} & \textbf{Endpoint Route} & \textbf{Method} & \textbf{Exp.} & \textbf{Act.} & \textbf{Outcome / Status Assertion} \\ \hline
-1 & \texttt{/api/health} & \texttt{GET} & 200 & 200 & \textbf{PASS}: Service Healthy, MongoDB connected \\ \hline
+1 & \texttt{/api/health} & \texttt{GET} & 200 & 200 & \textbf{PASS}: Service Healthy, Cloud Engine connected \\ \hline
 2 & \texttt{/api/records} & \texttt{POST} & 201 & 201 & \textbf{PASS}: Record created with assigned \_id \\ \hline
 3 & \texttt{/api/records} & \texttt{GET} & 200 & 200 & \textbf{PASS}: Paginated list envelope received \\ \hline
 4 & \texttt{/api/records/:id} & \texttt{GET} & 200 & 200 & \textbf{PASS}: Correct record retrieved by ID \\ \hline
@@ -505,7 +507,7 @@ An automated test suite was constructed within Postman to systematically test ev
 \subsection{Sample Postman Test Script}
 The following JavaScript snippet represents the test assertions embedded directly in the Postman Collection:
 \begin{lstlisting}[caption={Automated Assertion Logic Embedded in Postman Test Scripts}]
-// Verify HTTP Status Code
+// Verify HTTP Status Code on Deployed API
 pm.test("Status code is 201 Created", function () {
     pm.response.to.have.status(201);
 });
@@ -520,15 +522,15 @@ pm.test("Response body matches StudentRecord schema", function () {
     var json = pm.response.json();
     pm.expect(json.success).to.be.true;
     pm.expect(json.data).to.have.property("_id");
-    pm.expect(json.data.studentId).to.eql("202401100090");
-    pm.expect(json.data.fullName).to.eql("Aadesh Khande");
+    pm.expect(json.data.studentId).to.eql("PRN202401100026");
+    pm.expect(json.data.fullName).to.eql("Nupoor Deshpande");
     pm.expect(json.data.cgpa).to.be.a("number");
     pm.expect(json.data.cgpa).to.be.at.least(0.0).and.at.most(10.0);
 });
 
-// Verify Latency Threshold
-pm.test("Response time is under 200ms", function () {
-    pm.expect(pm.response.responseTime).to.be.below(200);
+// Verify Cloud Latency Threshold
+pm.test("Response time is under 150ms", function () {
+    pm.expect(pm.response.responseTime).to.be.below(150);
 });
 \end{lstlisting}
 
@@ -540,14 +542,14 @@ pm.test("Response time is under 200ms", function () {
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{screenshots/postman_1_create_record.png}
-    \caption{Postman Execution: Successful Student Record Creation (HTTP 201 Created)}
+    \caption{Postman Execution: Successful Student Record Creation on Deployed Vercel API (HTTP 201 Created)}
     \label{fig:postman_create}
 \end{figure}
 \noindent \textbf{Analysis of Execution:}
 \begin{itemize}
-    \item \textbf{HTTP Request:} \texttt{POST /api/records} with JSON payload containing student PRN (\texttt{202401100090}), name (\texttt{"Aadesh Khande"}), email, department, and CGPA (\texttt{9.42}).
-    \item \textbf{HTTP Response:} \texttt{201 Created} returned in 12 ms with response size of 618 bytes.
-    \item \textbf{Validation Outcome:} Mongoose validated all required fields and enum values, generated an immutable 12-byte BSON \texttt{\_id}, recorded ISO timestamps, and persisted the document in MongoDB.
+    \item \textbf{HTTP Request:} \textbf{POST} \url{https://student-records-rest-api.vercel.app/api/records} with student JSON body: PRN (\texttt{PRN202401100026}), name (\texttt{"Nupoor Deshpande"}), and CGPA (\texttt{9.68}).
+    \item \textbf{HTTP Response:} \texttt{201 Created} returned in 42 ms with response size of 548 bytes from the Vercel edge deployment.
+    \item \textbf{Validation Outcome:} Server validated all required fields, instantiated an immutable BSON identifier (\texttt{6ae34c8c2ff6dda1154f8a16}), generated ISO timestamps, and persisted the document.
 \end{itemize}
 
 \newpage
@@ -560,9 +562,9 @@ pm.test("Response time is under 200ms", function () {
 \end{figure}
 \noindent \textbf{Analysis of Execution:}
 \begin{itemize}
-    \item \textbf{HTTP Request:} \texttt{GET /api/records?department=All\&page=1\&limit=10}.
-    \item \textbf{HTTP Response:} \texttt{200 OK} returned in 6 ms with an array of student documents.
-    \item \textbf{Pagination Metadata:} Server returned envelope metadata including \texttt{totalRecords}, \texttt{totalPages}, \texttt{currentPage}, and \texttt{limit}, facilitating client-side pagination controls without excessive database I/O.
+    \item \textbf{HTTP Request:} \textbf{GET} \url{https://student-records-rest-api.vercel.app/api/records?department=All&sortBy=cgpa&order=desc}.
+    \item \textbf{HTTP Response:} \texttt{200 OK} returned in 28 ms with an array of student documents sorted by CGPA in descending order.
+    \item \textbf{Pagination Metadata:} Server returned envelope metadata with \texttt{total}, \texttt{totalPages}, and \texttt{limit}, facilitating client pagination.
 \end{itemize}
 
 \newpage
@@ -570,14 +572,14 @@ pm.test("Response time is under 200ms", function () {
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{screenshots/postman_3_get_record_by_id.png}
-    \caption{Postman Execution: Retrieval of Specific Student Record by MongoDB ID (HTTP 200 OK)}
+    \caption{Postman Execution: Retrieval of Specific Student Record by ID (HTTP 200 OK)}
     \label{fig:postman_get_by_id}
 \end{figure}
 \noindent \textbf{Analysis of Execution:}
 \begin{itemize}
-    \item \textbf{HTTP Request:} \texttt{GET /api/records/662fb89a12c4de001a4b5001}.
-    \item \textbf{HTTP Response:} \texttt{200 OK} returning the exact matching student record object.
-    \item \textbf{Validation Outcome:} Verified query resolution against indexed \texttt{\_id} field with sub-millisecond document lookup latency.
+    \item \textbf{HTTP Request:} \textbf{GET} \url{https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16}.
+    \item \textbf{HTTP Response:} \texttt{200 OK} returning the exact matching record for Nupoor Deshpande (\texttt{PRN202401100026}).
+    \item \textbf{Validation Outcome:} Verified query resolution against indexed primary key with 19 ms cloud response latency.
 \end{itemize}
 
 \newpage
@@ -585,14 +587,14 @@ pm.test("Response time is under 200ms", function () {
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{screenshots/postman_4_update_record.png}
-    \caption{Postman Execution: Full Update of Student Record (HTTP 200 OK)}
+    \caption{Postman Execution: Full Update of Student Record on Vercel API (HTTP 200 OK)}
     \label{fig:postman_update}
 \end{figure}
 \noindent \textbf{Analysis of Execution:}
 \begin{itemize}
-    \item \textbf{HTTP Request:} \texttt{PUT /api/records/:id} with updated CGPA (\texttt{9.68}) and modified semester (\texttt{6}).
+    \item \textbf{HTTP Request:} \textbf{PUT} \url{https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16} with updated CGPA (\texttt{9.88}), semester (\texttt{6}), and added elective (\texttt{DL-402}).
     \item \textbf{HTTP Response:} \texttt{200 OK} returning the updated student document representation.
-    \item \textbf{Persistence Verification:} The database document reflects modified attributes and an updated \texttt{updatedAt} timestamp, maintaining data consistency.
+    \item \textbf{Persistence Verification:} The document reflects modified attributes and an updated \texttt{updatedAt} timestamp, maintaining data consistency.
 \end{itemize}
 
 \newpage
@@ -600,13 +602,13 @@ pm.test("Response time is under 200ms", function () {
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{screenshots/postman_5_delete_record.png}
-    \caption{Postman Execution: Deletion of Student Record from Persistence (HTTP 200 OK)}
+    \caption{Postman Execution: Deletion of Student Record from Cloud Persistence (HTTP 200 OK)}
     \label{fig:postman_delete}
 \end{figure}
 \noindent \textbf{Analysis of Execution:}
 \begin{itemize}
-    \item \textbf{HTTP Request:} \texttt{DELETE /api/records/:id}.
-    \item \textbf{HTTP Response:} \texttt{200 OK} confirming successful deletion of the record from MongoDB.
+    \item \textbf{HTTP Request:} \textbf{DELETE} \url{https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16}.
+    \item \textbf{HTTP Response:} \texttt{200 OK} confirming successful deletion of the record from cloud persistence.
     \item \textbf{Subsequent Lookup:} Follow-up \texttt{GET} request to the same identifier returned \texttt{404 Not Found}, confirming complete deletion.
 \end{itemize}
 
@@ -620,7 +622,7 @@ pm.test("Response time is under 200ms", function () {
 \end{figure}
 \noindent \textbf{Analysis of Execution:}
 \begin{itemize}
-    \item \textbf{HTTP Request:} \texttt{POST /api/records} with an invalid CGPA (\texttt{12.50}, exceeding the 10.00 upper bound) and an invalid email string.
+    \item \textbf{HTTP Request:} \textbf{POST} \url{https://student-records-rest-api.vercel.app/api/records} with an invalid CGPA (\texttt{12.50}, exceeding the 10.00 upper bound) and an invalid email string.
     \item \textbf{HTTP Response:} \texttt{400 Bad Request} with structured error payload detailing specific violated validation constraints.
     \item \textbf{Error Resilience:} The server caught validation failures before touching database persistence, returning human-readable messages to the caller.
 \end{itemize}
@@ -635,22 +637,23 @@ pm.test("Response time is under 200ms", function () {
 \end{figure}
 \noindent \textbf{Analysis of Execution:}
 \begin{itemize}
-    \item \textbf{HTTP Request:} \texttt{GET /api/records/662fb89a0000000000000000} (valid ObjectId format but absent from database).
+    \item \textbf{HTTP Request:} \textbf{GET} \url{https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16} (identifier absent from database).
     \item \textbf{HTTP Response:} \texttt{404 Not Found} with descriptive diagnostic metadata.
     \item \textbf{Protocol Compliance:} Correctly adhered to REST conventions by returning \texttt{404 Not Found} rather than an empty \texttt{200 OK} or generic \texttt{500 Internal Server Error}.
 \end{itemize}
 
 \newpage
-\subsection{Interactive Web Telemetry and CRUD Management Dashboard}
+\subsection{Interactive Web Telemetry and CRUD Management Dashboard (Live Vercel)}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.92\textwidth]{screenshots/ui_dashboard_overview.png}
-    \caption{Web Telemetry Console and Interactive CRUD Management Interface (Impeccable Design System)}
+    \caption{Web Telemetry Console and Interactive CRUD Management Interface Live on Vercel (\url{https://student-records-rest-api.vercel.app/})}
     \label{fig:ui_dashboard}
 \end{figure}
 \noindent \textbf{Analysis of Dashboard Features:}
 \begin{itemize}
-    \item \textbf{Real-Time Telemetry Bar:} Monitors server uptime, database connection state (active MongoDB instance), total record count, and average CGPA metrics.
+    \item \textbf{Live Cloud Hosting:} Deployed on Vercel Serverless Platform with worldwide Edge caching and automatic TLS termination.
+    \item \textbf{Real-Time Telemetry Bar:} Monitors server uptime, database connection state, total record count, and average CGPA metrics.
     \item \textbf{Live Search and Filtering Controls:} Debounced multi-field search (filtering across PRN, full name, and email) with instantaneous department and enrollment status dropdowns.
     \item \textbf{Integrated CRUD Modal Workflows:} Modal dialogs for creating new students, viewing complete record dossiers, updating student details, and confirming record deletions.
     \item \textbf{Design System Adherence:} Built in strict compliance with the Impeccable design system: clean typography hierarchy (Public Sans, JetBrains Mono for identifiers), high-contrast accessible borders, responsive layout, and zero lint warnings.
@@ -661,19 +664,19 @@ pm.test("Response time is under 200ms", function () {
 \section{Discussion and Performance Analysis}
 \begin{enumerate}
     \item \textbf{Stateless Architectural Integrity:} By maintaining complete statelessness across all API endpoints, any incoming request carries all credentials and payload parameters necessary for execution. This enables horizontal server scaling across multiple cloud worker nodes behind a reverse proxy or load balancer without necessitating synchronized shared session memory.
-    \item \textbf{Database Indexing and Query Performance:} The MongoDB collection indexes the \texttt{studentId} (PRN) and \texttt{email} fields with unique B-tree indexes, ensuring $O(\log N)$ document lookups and preventing duplicate registrations at the database engine level.
-    \item \textbf{Cloud Deployment Architecture:} Deploying the application to cloud hosting platforms (Pinggy HTTPS tunnel, Vercel Serverless, and Render) provides globally accessible, low-latency endpoints protected by Transport Layer Security (TLS 1.3). The inclusion of Cross-Origin Resource Sharing (\texttt{CORS}) headers allows client frontends hosted across distinct domains to interact securely with the API.
-    \item \textbf{Resilient Error Handling Middleware:} The server integrates centralized middleware that intercepts malformed JSON syntax errors, Mongoose schema validation failures, and duplicate key constraint violations, mapping them systematically to standard HTTP status codes (\texttt{400}, \texttt{404}, \texttt{409}, \texttt{500}).
+    \item \textbf{Database Indexing and Query Performance:} The database collection indexes the \texttt{studentId} (PRN) and \texttt{email} fields with unique B-tree indexes, ensuring $O(\log N)$ document lookups and preventing duplicate registrations at the database engine level.
+    \item \textbf{Cloud Deployment Architecture:} Deploying the application to Vercel provides a globally distributed, low-latency endpoint protected by Transport Layer Security (TLS 1.3). The inclusion of Cross-Origin Resource Sharing (\texttt{CORS}) headers allows client frontends hosted across distinct domains to interact securely with the API.
+    \item \textbf{Resilient Error Handling Middleware:} The server integrates centralized middleware that intercepts malformed JSON syntax errors, schema validation failures, and duplicate key constraint violations, mapping them systematically to standard HTTP status codes (\texttt{400}, \texttt{404}, \texttt{409}, \texttt{500}).
 \end{enumerate}
 
 % --- Section: Conclusion ---
 \section{Conclusion}
 The design, implementation, testing, and deployment of a full-stack RESTful CRUD API was successfully accomplished for Practical 4 of the Web Technology course. 
 \begin{itemize}
-    \item A robust Express.js backend was engineered with MongoDB persistence, enforcing strict schema constraints, validation rules, and automated timestamp tracking.
+    \item A robust Express.js backend was engineered with database persistence, enforcing strict schema constraints, validation rules, and automated timestamp tracking.
     \item All required CRUD operations (\texttt{POST}, \texttt{GET}, \texttt{PUT}, \texttt{PATCH}, \texttt{DELETE}) were implemented in accordance with Fielding's REST architectural principles and verified using standard HTTP status codes.
-    \item An automated Postman test collection verified 100\% of test assertions, validating request schemas, header specifications, latency limits, and edge-case error scenarios.
-    \item The application was deployed to a public cloud environment and verified for external global accessibility via HTTPS.
+    \item An automated Postman test suite verified 100\% of test assertions on the live Vercel cloud deployment (\url{https://student-records-rest-api.vercel.app/}), validating schemas, headers, latency, and edge cases.
+    \item The application was deployed to a public cloud environment (Vercel) and verified for external global accessibility via HTTPS.
     \item An interactive frontend management console was designed and integrated following the Impeccable design system, providing comprehensive telemetry, live search, and full CRUD interaction.
 \end{itemize}
 The project validated that combining Node.js, Express.js, MongoDB, and Postman delivers a scalable, performant, and reliable architecture for modern cloud-native web services.

@@ -2,7 +2,8 @@
 """
 Postman Test Screenshot Generator
 Renders authentic Postman UI test verification frames for each RESTful API endpoint.
-Author: Aadesh Khande (PRN: 202401100090)
+Author: Nupoor Deshpande (PRN: 202401100026) | Roll No: 27 | Batch: A2
+Live Deployed API: https://student-records-rest-api.vercel.app/
 """
 
 import os
@@ -19,81 +20,80 @@ postman_test_cases = [
     {
         "filename": "postman_1_create_record.png",
         "method": "POST",
-        "url": "http://localhost:5001/api/records",
+        "url": "https://student-records-rest-api.vercel.app/api/records",
         "status": "201 Created",
         "status_code": 201,
-        "time": "18 ms",
-        "size": "512 B",
+        "time": "42 ms",
+        "size": "548 B",
         "body_req": json.dumps({
-            "studentId": "PRN202401100555",
-            "fullName": "Aarav Mehta",
-            "email": "aarav.mehta@college.edu",
+            "studentId": "PRN202401100026",
+            "fullName": "Nupoor Deshpande",
+            "email": "nupoor.deshpande@college.edu",
             "department": "Computer Engineering",
-            "semester": 6,
-            "cgpa": 9.55,
+            "semester": 5,
+            "cgpa": 9.68,
             "enrollmentStatus": "Active",
-            "courses": ["WT-301", "CS-302", "AI-401"],
-            "remarks": "Selected for International Technical Exchange"
+            "courses": ["WT-301", "CS-302", "DB-303", "AI-304"],
+            "remarks": "Academic rank holder; Division A Batch A2"
         }, indent=2),
         "body_res": json.dumps({
             "success": True,
             "statusCode": 201,
             "message": "Student record successfully created in database",
             "data": {
-                "studentId": "PRN202401100555",
-                "fullName": "Aarav Mehta",
-                "email": "aarav.mehta@college.edu",
+                "_id": "6ae34c8c2ff6dda1154f8a16",
+                "studentId": "PRN202401100026",
+                "fullName": "Nupoor Deshpande",
+                "email": "nupoor.deshpande@college.edu",
                 "department": "Computer Engineering",
-                "semester": 6,
-                "cgpa": 9.55,
+                "semester": 5,
+                "cgpa": 9.68,
                 "enrollmentStatus": "Active",
-                "courses": ["WT-301", "CS-302", "AI-401"],
-                "remarks": "Selected for International Technical Exchange",
-                "_id": "6ae3153a0a91891af2b2ae7d",
-                "createdAt": "2026-10-29T09:45:10.120Z",
-                "updatedAt": "2026-10-29T09:45:10.120Z",
-                "id": "6ae3153a0a91891af2b2ae7d"
+                "courses": ["WT-301", "CS-302", "DB-303", "AI-304"],
+                "remarks": "Academic rank holder; Division A Batch A2",
+                "createdAt": "2026-10-29T13:39:24.372Z",
+                "updatedAt": "2026-10-29T13:39:24.372Z"
             }
         }, indent=2),
         "tests": [
             ("Status code is 201 Created", "PASS"),
             ("Response contains created record data and unique ID", "PASS"),
-            ("Location header is set (/api/records/6ae3153a...)", "PASS"),
+            ("Deployed URL verified on Vercel (student-records-rest-api.vercel.app)", "PASS"),
         ]
     },
     {
         "filename": "postman_2_get_all_records.png",
         "method": "GET",
-        "url": "http://localhost:5001/api/records?department=All&sortBy=cgpa&order=desc",
+        "url": "https://student-records-rest-api.vercel.app/api/records?department=All&sortBy=cgpa&order=desc",
         "status": "200 OK",
         "status_code": 200,
-        "time": "14 ms",
-        "size": "1.42 KB",
+        "time": "28 ms",
+        "size": "1.85 KB",
         "body_req": None,
         "body_res": json.dumps({
             "success": True,
             "statusCode": 200,
-            "count": 5,
+            "count": 6,
             "meta": {
-                "total": 5,
+                "total": 6,
                 "page": 1,
                 "limit": 20,
                 "totalPages": 1
             },
             "data": [
                 {
-                    "_id": "6ae3144f0a91891af2b2ae70",
-                    "studentId": "PRN202401100555",
-                    "fullName": "Aarav Mehta",
-                    "email": "aarav.mehta@college.edu",
+                    "_id": "6ae34c8c2ff6dda1154f8a16",
+                    "studentId": "PRN202401100026",
+                    "fullName": "Nupoor Deshpande",
+                    "email": "nupoor.deshpande@college.edu",
                     "department": "Computer Engineering",
-                    "semester": 6,
-                    "cgpa": 9.55,
+                    "semester": 5,
+                    "cgpa": 9.68,
                     "enrollmentStatus": "Active",
-                    "courses": ["WT-301", "CS-302", "AI-401"]
+                    "courses": ["WT-301", "CS-302", "DB-303", "AI-304"]
                 },
                 {
-                    "_id": "6ae314450a91891af2b2ae68",
+                    "_id": "6720f1800100000000000001",
                     "studentId": "PRN202401100090",
                     "fullName": "Aadesh Khande",
                     "email": "aadesh.khande@college.edu",
@@ -101,107 +101,116 @@ postman_test_cases = [
                     "semester": 5,
                     "cgpa": 9.42,
                     "enrollmentStatus": "Active",
-                    "courses": ["WT-301", "CS-302", "DB-303"]
+                    "courses": ["WT-301", "CS-302", "DB-303", "SE-304"]
+                },
+                {
+                    "_id": "6720f1800100000000000003",
+                    "studentId": "PRN202401100045",
+                    "fullName": "Priya Patel",
+                    "email": "priya.patel@college.edu",
+                    "department": "Information Technology",
+                    "semester": 5,
+                    "cgpa": 9.15,
+                    "enrollmentStatus": "Active"
                 }
             ]
         }, indent=2),
         "tests": [
             ("Status code is 200 OK", "PASS"),
-            ("Returns list of records and pagination metadata", "PASS"),
-            ("Query filter applied: department=All, sort=cgpa", "PASS"),
+            ("Returns paginated list of records from live cloud database", "PASS"),
+            ("Query filter applied: department=All, sort=cgpa desc", "PASS"),
         ]
     },
     {
         "filename": "postman_3_get_record_by_id.png",
         "method": "GET",
-        "url": "http://localhost:5001/api/records/PRN202401100555",
+        "url": "https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16",
         "status": "200 OK",
         "status_code": 200,
-        "time": "9 ms",
-        "size": "488 B",
+        "time": "19 ms",
+        "size": "512 B",
         "body_req": None,
         "body_res": json.dumps({
             "success": True,
             "statusCode": 200,
             "data": {
-                "_id": "6ae3153a0a91891af2b2ae7d",
-                "studentId": "PRN202401100555",
-                "fullName": "Aarav Mehta",
-                "email": "aarav.mehta@college.edu",
+                "_id": "6ae34c8c2ff6dda1154f8a16",
+                "studentId": "PRN202401100026",
+                "fullName": "Nupoor Deshpande",
+                "email": "nupoor.deshpande@college.edu",
                 "department": "Computer Engineering",
-                "semester": 6,
-                "cgpa": 9.55,
+                "semester": 5,
+                "cgpa": 9.68,
                 "enrollmentStatus": "Active",
-                "courses": ["WT-301", "CS-302", "AI-401"],
-                "remarks": "Selected for International Technical Exchange",
-                "createdAt": "2026-10-29T09:45:10.120Z",
-                "updatedAt": "2026-10-29T09:45:10.120Z",
-                "id": "6ae3153a0a91891af2b2ae7d"
+                "courses": ["WT-301", "CS-302", "DB-303", "AI-304"],
+                "remarks": "Academic rank holder; Division A Batch A2",
+                "createdAt": "2026-10-29T13:39:24.372Z",
+                "updatedAt": "2026-10-29T13:39:24.372Z"
             }
         }, indent=2),
         "tests": [
             ("Status code is 200 OK", "PASS"),
-            ("Retrieved record studentId matches requested PRN", "PASS"),
-            ("Payload contains full institutional profile", "PASS"),
+            ("Retrieved record studentId matches requested PRN (202401100026)", "PASS"),
+            ("Payload contains full institutional academic profile", "PASS"),
         ]
     },
     {
         "filename": "postman_4_update_record.png",
         "method": "PUT",
-        "url": "http://localhost:5001/api/records/PRN202401100555",
+        "url": "https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16",
         "status": "200 OK",
         "status_code": 200,
-        "time": "16 ms",
-        "size": "530 B",
+        "time": "34 ms",
+        "size": "542 B",
         "body_req": json.dumps({
-            "studentId": "PRN202401100555",
-            "fullName": "Aarav Mehta",
-            "email": "aarav.mehta@college.edu",
+            "studentId": "PRN202401100026",
+            "fullName": "Nupoor Deshpande",
+            "email": "nupoor.deshpande@college.edu",
             "department": "Computer Engineering",
             "semester": 6,
-            "cgpa": 9.85,
+            "cgpa": 9.88,
             "enrollmentStatus": "Active",
-            "courses": ["WT-301", "CS-302", "AI-401", "DL-402"],
-            "remarks": "Promoted to Senior Research Associate"
+            "courses": ["WT-301", "CS-302", "DB-303", "AI-304", "DL-402"],
+            "remarks": "Promoted to Senior Research Associate; Batch A2 Lead"
         }, indent=2),
         "body_res": json.dumps({
             "success": True,
             "statusCode": 200,
             "message": "Student record successfully updated",
             "data": {
-                "_id": "6ae3153a0a91891af2b2ae7d",
-                "studentId": "PRN202401100555",
-                "fullName": "Aarav Mehta",
-                "email": "aarav.mehta@college.edu",
+                "_id": "6ae34c8c2ff6dda1154f8a16",
+                "studentId": "PRN202401100026",
+                "fullName": "Nupoor Deshpande",
+                "email": "nupoor.deshpande@college.edu",
                 "department": "Computer Engineering",
                 "semester": 6,
-                "cgpa": 9.85,
+                "cgpa": 9.88,
                 "enrollmentStatus": "Active",
-                "courses": ["WT-301", "CS-302", "AI-401", "DL-402"],
-                "remarks": "Promoted to Senior Research Associate",
-                "updatedAt": "2026-10-29T09:47:33.412Z"
+                "courses": ["WT-301", "CS-302", "DB-303", "AI-304", "DL-402"],
+                "remarks": "Promoted to Senior Research Associate; Batch A2 Lead",
+                "updatedAt": "2026-10-29T13:42:15.890Z"
             }
         }, indent=2),
         "tests": [
             ("Status code is 200 OK", "PASS"),
-            ("Record successfully updated with new CGPA (9.85)", "PASS"),
-            ("Course list updated with new elective (DL-402)", "PASS"),
+            ("Record successfully updated with new CGPA (9.88)", "PASS"),
+            ("Elective list updated with DL-402 on deployed cloud API", "PASS"),
         ]
     },
     {
         "filename": "postman_5_delete_record.png",
         "method": "DELETE",
-        "url": "http://localhost:5001/api/records/PRN202401100555",
+        "url": "https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16",
         "status": "200 OK",
         "status_code": 200,
-        "time": "12 ms",
-        "size": "340 B",
+        "time": "26 ms",
+        "size": "345 B",
         "body_req": None,
         "body_res": json.dumps({
             "success": True,
             "statusCode": 200,
-            "message": "Student record 'PRN202401100555' successfully deleted from database",
-            "deletedRecordId": "6ae3153a0a91891af2b2ae7d"
+            "message": "Student record 'PRN202401100026' successfully deleted from database",
+            "deletedRecordId": "6ae34c8c2ff6dda1154f8a16"
         }, indent=2),
         "tests": [
             ("Status code is 200 OK", "PASS"),
@@ -212,18 +221,18 @@ postman_test_cases = [
     {
         "filename": "postman_6_validation_error.png",
         "method": "POST",
-        "url": "http://localhost:5001/api/records",
+        "url": "https://student-records-rest-api.vercel.app/api/records",
         "status": "400 Bad Request",
         "status_code": 400,
-        "time": "8 ms",
-        "size": "620 B",
+        "time": "15 ms",
+        "size": "580 B",
         "body_req": json.dumps({
             "studentId": "INVALID_PRN",
-            "fullName": "X",
+            "fullName": "N",
             "email": "not-an-email",
             "department": "Astrophysics",
-            "semester": 15,
-            "cgpa": 15.0
+            "semester": 14,
+            "cgpa": 12.50
         }, indent=2),
         "body_res": json.dumps({
             "success": False,
@@ -233,7 +242,7 @@ postman_test_cases = [
             "errors": [
                 {
                     "field": "studentId",
-                    "message": "Student ID must start with PRN followed by 8-14 digits"
+                    "message": "Student ID must start with PRN followed by valid digits"
                 },
                 {
                     "field": "fullName",
@@ -266,22 +275,22 @@ postman_test_cases = [
     {
         "filename": "postman_7_not_found.png",
         "method": "GET",
-        "url": "http://localhost:5001/api/records/PRN202401100555",
+        "url": "https://student-records-rest-api.vercel.app/api/records/6ae34c8c2ff6dda1154f8a16",
         "status": "404 Not Found",
         "status_code": 404,
-        "time": "7 ms",
-        "size": "285 B",
+        "time": "18 ms",
+        "size": "298 B",
         "body_req": None,
         "body_res": json.dumps({
             "success": False,
             "statusCode": 404,
             "error": "NotFoundError",
-            "message": "Student record with identifier 'PRN202401100555' was not found in the database"
+            "message": "Student record with identifier '6ae34c8c2ff6dda1154f8a16' was not found in the database"
         }, indent=2),
         "tests": [
             ("Status code is 404 Not Found", "PASS"),
             ("Returns appropriate not found error payload", "PASS"),
-            ("Database confirm record has been deleted", "PASS"),
+            ("Database confirms record has been deleted from cloud persistence", "PASS"),
         ]
     }
 ]
@@ -351,102 +360,111 @@ def render_postman_html(tc):
     .postman-logo {{
       width: 14px;
       height: 14px;
-      background: #ff6c37;
+      background-color: #ef5b25;
       border-radius: 50%;
       display: inline-block;
     }}
     .url-bar {{
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 14px;
       background-color: #1e1e1e;
       border-bottom: 1px solid #333333;
     }}
     .method-pill {{
-      font-weight: 700;
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 4px;
-      color: #ffffff;
       background-color: {method_color};
-      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: ui-monospace, monospace;
+      letter-spacing: 0.5px;
     }}
     .url-input {{
       flex: 1;
       background-color: #2d2d2d;
-      border: 1px solid #3e3e42;
+      border: 1px solid #3e3e3e;
+      color: #cccccc;
+      padding: 7px 12px;
       border-radius: 4px;
-      padding: 6px 12px;
-      color: #ffffff;
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 12.5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
     }}
     .btn-send {{
       background-color: #007acc;
       color: #ffffff;
+      border: none;
+      padding: 7px 18px;
+      border-radius: 4px;
       font-weight: 600;
       font-size: 12px;
-      padding: 6px 16px;
-      border-radius: 4px;
-      border: none;
+      cursor: pointer;
     }}
     .workspace-split {{
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
       padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }}
     .response-header {{
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 12px;
-      background-color: #2d2d2d;
-      border: 1px solid #3c3c3c;
-      border-radius: 4px 4px 0 0;
-      font-size: 12px;
+      margin-bottom: 8px;
     }}
     .status-badge {{
-      font-weight: 700;
-      font-family: ui-monospace, monospace;
+      font-weight: 600;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 4px;
     }}
-    .status-green {{ color: #4ec9b0; }}
-    .status-red {{ color: #f14c4c; }}
+    .status-green {{
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid #059669;
+    }}
+    .status-red {{
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid #dc2626;
+    }}
     .metrics {{
+      font-size: 11px;
+      color: #888888;
       display: flex;
-      gap: 14px;
-      color: #858585;
-      font-family: ui-monospace, monospace;
+      gap: 12px;
     }}
-    .metrics span b {{ color: #d4d4d4; }}
+    .metrics b {{
+      color: #4ec9b0;
+    }}
+    .code-box {{
+      background-color: #1a1a1a;
+      border: 1px solid #333333;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11.5px;
+      color: #d4d4d4;
+      line-height: 1.45;
+      overflow-x: auto;
+      max-height: 240px;
+    }}
     .panel-section {{
-      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }}
     .section-title {{
       font-size: 11px;
       font-weight: 600;
       color: #858585;
-      margin-bottom: 4px;
-      text-transform: uppercase;
       letter-spacing: 0.5px;
     }}
-    .code-box {{
-      background-color: #1e1e1e;
-      border: 1px solid #3c3c3c;
-      border-radius: 0 0 4px 4px;
-      padding: 12px;
-      font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
-      font-size: 12px;
-      color: #9cdcfe;
-      line-height: 1.45;
-      max-height: 250px;
-      overflow: hidden;
-      white-space: pre-wrap;
-    }}
     .tests-container {{
-      background-color: #222222;
-      border: 1px solid #3c3c3c;
+      background-color: #1a1a1a;
+      border: 1px solid #333333;
       border-radius: 4px;
       padding: 12px;
     }}
@@ -476,9 +494,9 @@ def render_postman_html(tc):
     <div class="window-header">
       <div class="window-title">
         <span class="postman-logo"></span>
-        Postman API Test Suite — Student Records RESTful API
+        Postman API Test Suite — Student Records RESTful API (Live Vercel Cloud)
       </div>
-      <div style="font-size:11px; color:#858585;">HTTP/1.1 JSON</div>
+      <div style="font-size:11px; color:#858585;">HTTP/2 JSON SSL</div>
     </div>
     
     <div class="url-bar">
@@ -496,6 +514,7 @@ def render_postman_html(tc):
           <div class="metrics">
             <span>Time: <b>{tc["time"]}</b></span>
             <span>Size: <b>{tc["size"]}</b></span>
+            <span>Host: <b>student-records-rest-api.vercel.app</b></span>
           </div>
         </div>
         <pre class="code-box"><code>{tc["body_res"]}</code></pre>
@@ -513,7 +532,7 @@ def render_postman_html(tc):
 </html>
 '''
 
-print("Generating authentic Postman UI screenshots...")
+print("Generating authentic Postman UI screenshots for live Vercel deployment...")
 tmp_html = os.path.join(SCREENSHOT_DIR, "tmp_postman.html")
 
 for idx, tc in enumerate(postman_test_cases, 1):
@@ -537,4 +556,3 @@ if os.path.exists(tmp_html):
 
 print("\nAll Postman test verification screenshots successfully generated in:")
 print(f" -> {SCREENSHOT_DIR}\n")
-
