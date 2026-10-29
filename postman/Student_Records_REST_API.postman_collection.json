@@ -1,0 +1,417 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-47a8-b9c0-123456789abc",
+    "name": "Student Records RESTful API (CRUD & Database)",
+    "description": "Comprehensive Postman test collection for verifying RESTful API CRUD operations on a database. Built for Web Technology Lab Practical submission by Aadesh Khande (PRN: 202401100090).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health & Database Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Service reports healthy and database connected', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.status).to.eql('healthy');",
+              "    pm.expect(jsonData.database.connected).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Queries the API health, runtime telemetry, and database connectivity."
+      }
+    },
+    {
+      "name": "2. Seed Database Records",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Database seeded with benchmark records', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.count).to.be.at.least(5);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/records/seed",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records", "seed"]
+        },
+        "description": "Resets and seeds benchmark student records into the database."
+      }
+    },
+    {
+      "name": "3. CREATE Record (POST /api/records)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Response contains created record data and unique ID', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data).to.have.property('_id');",
+              "    pm.expect(jsonData.data.studentId).to.eql('PRN202401100555');",
+              "    pm.expect(jsonData.data.fullName).to.eql('Aarav Mehta');",
+              "    pm.expect(jsonData.data.cgpa).to.eql(9.55);",
+              "    pm.environment.set('createdRecordId', jsonData.data._id);",
+              "    pm.environment.set('createdPRN', jsonData.data.studentId);",
+              "});",
+              "pm.test('Location header is set', function () {",
+              "    pm.response.to.have.header('Location');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"PRN202401100555\",\n  \"fullName\": \"Aarav Mehta\",\n  \"email\": \"aarav.mehta@college.edu\",\n  \"department\": \"Computer Engineering\",\n  \"semester\": 6,\n  \"cgpa\": 9.55,\n  \"enrollmentStatus\": \"Active\",\n  \"courses\": [\"WT-301\", \"CS-302\", \"AI-401\"],\n  \"remarks\": \"Selected for International Technical Exchange\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/records",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records"]
+        },
+        "description": "Creates a new student record in the database."
+      }
+    },
+    {
+      "name": "4. READ All Records (GET /api/records)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns list of records and pagination metadata', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data).to.be.an('array');",
+              "    pm.expect(jsonData.count).to.be.at.least(1);",
+              "    pm.expect(jsonData.meta).to.have.property('total');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/records?department=All&status=All&sortBy=createdAt&order=desc&page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records"],
+          "query": [
+            { "key": "department", "value": "All" },
+            { "key": "status", "value": "All" },
+            { "key": "sortBy", "value": "createdAt" },
+            { "key": "order", "value": "desc" },
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" }
+          ]
+        },
+        "description": "Retrieves paginated student records with optional search and filters."
+      }
+    },
+    {
+      "name": "5. READ Single Record by ID (GET /api/records/:id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Retrieved student record matches requested ID', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.studentId).to.eql(pm.environment.get('createdPRN'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/records/{{createdRecordId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records", "{{createdRecordId}}"]
+        },
+        "description": "Fetches a specific record by MongoDB ObjectId or PRN."
+      }
+    },
+    {
+      "name": "6. UPDATE Record (PUT /api/records/:id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Record successfully updated with new CGPA and courses', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.cgpa).to.eql(9.85);",
+              "    pm.expect(jsonData.data.courses).to.include('DL-402');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"PRN202401100555\",\n  \"fullName\": \"Aarav Mehta\",\n  \"email\": \"aarav.mehta@college.edu\",\n  \"department\": \"Computer Engineering\",\n  \"semester\": 6,\n  \"cgpa\": 9.85,\n  \"enrollmentStatus\": \"Active\",\n  \"courses\": [\"WT-301\", \"CS-302\", \"AI-401\", \"DL-402\"],\n  \"remarks\": \"Promoted to Senior Research Associate\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/records/{{createdRecordId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records", "{{createdRecordId}}"]
+        },
+        "description": "Performs a complete update of an existing student record."
+      }
+    },
+    {
+      "name": "7. PARTIAL UPDATE Record (PATCH /api/records/:id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Record status successfully patched to Graduated', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data.enrollmentStatus).to.eql('Graduated');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"enrollmentStatus\": \"Graduated\",\n  \"remarks\": \"Successfully completed degree with Honors\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/records/{{createdRecordId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records", "{{createdRecordId}}"]
+        },
+        "description": "Selectively updates specific fields of a record."
+      }
+    },
+    {
+      "name": "8. DELETE Record (DELETE /api/records/:id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns confirmation of record deletion', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.message).to.include('successfully deleted');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/records/{{createdRecordId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records", "{{createdRecordId}}"]
+        },
+        "description": "Deletes the record from the database."
+      }
+    },
+    {
+      "name": "9. VERIFY DELETION (GET /api/records/:id -> 404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Returns appropriate not found error payload', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.error).to.eql('NotFoundError');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/records/{{createdRecordId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records", "{{createdRecordId}}"]
+        },
+        "description": "Verifies that the deleted record can no longer be retrieved."
+      }
+    },
+    {
+      "name": "10. VALIDATION ERROR TEST (POST -> 400 Bad Request)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 400 Bad Request', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Returns field-level validation errors', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.error).to.eql('ValidationError');",
+              "    pm.expect(jsonData.errors).to.be.an('array');",
+              "    pm.expect(jsonData.errors.length).to.be.at.least(3);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"INVALID_PRN\",\n  \"fullName\": \"X\",\n  \"email\": \"not-an-email\",\n  \"department\": \"Astrophysics\",\n  \"semester\": 15,\n  \"cgpa\": 15.0\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/records",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "records"]
+        },
+        "description": "Tests server-side validation error handling with invalid fields."
+      }
+    },
+    {
+      "name": "11. Database Analytics (GET /api/stats)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns aggregated statistics across departments', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data).to.have.property('total');",
+              "    pm.expect(jsonData.data).to.have.property('avgCgpa');",
+              "    pm.expect(jsonData.data.byDepartment).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "stats"]
+        },
+        "description": "Returns aggregate database analytics and departmental distributions."
+      }
+    }
+  ]
+}

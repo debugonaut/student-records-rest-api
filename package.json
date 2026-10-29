@@ -1,0 +1,30 @@
+{
+  "name": "student-records-rest-api",
+  "version": "1.0.0",
+  "description": "Production-grade RESTful API for managing database records with CRUD operations, MongoDB, and Postman verification",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "python3 tests/run_api_tests.py"
+  },
+  "keywords": [
+    "rest-api",
+    "crud",
+    "express",
+    "mongodb",
+    "mongoose",
+    "postman",
+    "web-technology"
+  ],
+  "author": "Aadesh Khande (PRN: 202401100090)",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.0",
+    "morgan": "^1.10.0"
+  }
+}

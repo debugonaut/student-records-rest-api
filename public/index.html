@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Records Registry — RESTful API Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-block">
+          <svg class="brand-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+          <div>
+            <h1 class="brand-title">Student Records Registry</h1>
+            <p class="brand-subtitle">RESTful Database Management & API Telemetry Console</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Telemetry Indicators -->
+        <div class="telemetry-bar">
+          <div class="telemetry-pill" id="db-status-pill" title="Database Connection Status">
+            <span class="status-pip live" id="db-pip"></span>
+            <span class="telemetry-label" id="db-status-text">Database: Connecting...</span>
+          </div>
+          <div class="telemetry-pill" title="Total Registered Records">
+            <span class="telemetry-dim">Records:</span>
+            <span class="telemetry-val" id="telemetry-count">--</span>
+          </div>
+          <div class="telemetry-pill" title="Average CGPA across all students">
+            <span class="telemetry-dim">Avg CGPA:</span>
+            <span class="telemetry-val" id="telemetry-cgpa">--</span>
+          </div>
+        </div>
+
+        <!-- Global Action Group -->
+        <div class="header-actions">
+          <button type="button" class="btn btn-secondary" id="btn-toggle-inspector">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            API Inspector
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-seed-data" title="Reset and populate database with sample students">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Seed Data
+          </button>
+          <button type="button" class="btn btn-primary" id="btn-open-create-modal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Student Record
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      
+      <!-- Operations Toolbar -->
+      <section class="toolbar-section">
+        <div class="search-box">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search by name, PRN, or email..." autocomplete="off">
+          <button type="button" id="search-clear" class="btn-clear hidden" title="Clear search">&times;</button>
+        </div>
+
+        <div class="filters-group">
+          <!-- Department Filter -->
+          <div class="filter-item">
+            <label for="filter-dept">Department:</label>
+            <select id="filter-dept" class="select-control">
+              <option value="All">All Departments</option>
+              <option value="Computer Engineering">Computer Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="AI & Data Science">AI & Data Science</option>
+              <option value="Electronics & Telecommunication">Electronics & Telecom</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="filter-item">
+            <label for="filter-status">Status:</label>
+            <select id="filter-status" class="select-control">
+              <option value="All">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Probation">Probation</option>
+              <option value="Graduated">Graduated</option>
+              <option value="On Leave">On Leave</option>
+            </select>
+          </div>
+
+          <!-- Sort Column -->
+          <div class="filter-item">
+            <label for="sort-by">Sort By:</label>
+            <select id="sort-by" class="select-control">
+              <option value="createdAt">Date Created</option>
+              <option value="fullName">Student Name</option>
+              <option value="cgpa">CGPA (Academic)</option>
+              <option value="studentId">PRN Identifier</option>
+            </select>
+          </div>
+
+          <!-- Sort Order Toggle -->
+          <button type="button" id="sort-order-btn" class="btn btn-icon" title="Toggle Sort Order (Descending / Ascending)">
+            <svg id="sort-icon-desc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18M6 12h12m-9 6h6"/>
+            </svg>
+            <span id="sort-order-text">Desc</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Content Split View -->
+      <div class="workspace-grid" id="workspace-grid">
+        
+        <!-- Table Card -->
+        <section class="table-container">
+          <div class="table-header-meta">
+            <span class="meta-count" id="record-meta-count">Showing 0 records</span>
+            <span class="meta-endpoint">API: <code>GET /api/records</code></span>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="records-table">
+              <thead>
+                <tr>
+                  <th>PRN / ID</th>
+                  <th>Student Name & Email</th>
+                  <th>Department</th>
+                  <th>Sem</th>
+                  <th>CGPA</th>
+                  <th>Status</th>
+                  <th>Enrolled Courses</th>
+                  <th class="th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="records-tbody">
+                <tr>
+                  <td colspan="8" class="td-empty">Loading records from database...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer Pagination -->
+          <div class="table-footer">
+            <div class="footer-info">
+              Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+            </div>
+            <div class="pagination-controls">
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-prev-page" disabled>Previous</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-next-page" disabled>Next</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Live API Inspector Drawer -->
+        <aside class="inspector-drawer hidden" id="inspector-drawer">
+          <div class="inspector-header">
+            <div class="inspector-title-group">
+              <span class="inspector-title">REST API Telemetry & JSON Console</span>
+              <span class="badge badge-mono" id="inspector-status-badge">200 OK</span>
+            </div>
+            <button type="button" class="btn-close" id="btn-close-inspector" title="Close Inspector">&times;</button>
+          </div>
+
+          <div class="inspector-meta">
+            <div class="inspector-row">
+              <span class="meta-key">Method & Endpoint:</span>
+              <span class="meta-val meta-method" id="inspector-endpoint">GET /api/records</span>
+            </div>
+            <div class="inspector-row">
+              <span class="meta-key">Roundtrip Latency:</span>
+              <span class="meta-val font-mono" id="inspector-latency">12ms</span>
+            </div>
+            <div class="inspector-row">
+              <span class="meta-key">Timestamp:</span>
+              <span class="meta-val font-mono" id="inspector-time">--</span>
+            </div>
+          </div>
+
+          <!-- Quick Interactive API Buttons -->
+          <div class="inspector-quick-actions">
+            <span class="quick-title">Quick Test Endpoints:</span>
+            <div class="quick-btns">
+              <button type="button" class="btn-chip" data-api="health">GET /health</button>
+              <button type="button" class="btn-chip" data-api="stats">GET /stats</button>
+              <button type="button" class="btn-chip" data-api="records">GET /records</button>
+            </div>
+          </div>
+
+          <div class="inspector-body">
+            <div class="code-toolbar">
+              <span class="code-label">Live Response Payload (JSON)</span>
+              <button type="button" class="btn btn-sm btn-subtle" id="btn-copy-json">Copy JSON</button>
+            </div>
+            <pre class="json-viewer" id="json-viewer"><code>{\n  "message": "Click on any table action or quick test button to inspect API payload"\n}</code></pre>
+
+            <div class="code-toolbar mt-2">
+              <span class="code-label">cURL Request Syntax</span>
+              <button type="button" class="btn btn-sm btn-subtle" id="btn-copy-curl">Copy cURL</button>
+            </div>
+            <pre class="curl-viewer font-mono" id="curl-viewer"><code>curl -X GET "http://localhost:5000/api/records" -H "Accept: application/json"</code></pre>
+          </div>
+        </aside>
+
+      </div>
+    </main>
+
+    <!-- Modal Form (Create / Edit Record) -->
+    <div class="modal-backdrop hidden" id="record-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="modal-title" id="modal-title">Create New Student Record</h2>
+          <button type="button" class="btn-close" id="btn-close-modal" aria-label="Close dialog">&times;</button>
+        </div>
+
+        <form id="record-form" novalidate>
+          <input type="hidden" id="form-record-id">
+
+          <div class="form-grid">
+            
+            <!-- PRN Identifier -->
+            <div class="form-field">
+              <label for="input-studentId" class="field-label">Student PRN / ID <span class="req">*</span></label>
+              <input type="text" id="input-studentId" class="input-control font-mono" placeholder="PRN202401100090" required>
+              <span class="field-hint">Format: PRN followed by digits</span>
+              <span class="field-error" id="err-studentId"></span>
+            </div>
+
+            <!-- Full Name -->
+            <div class="form-field">
+              <label for="input-fullName" class="field-label">Full Name <span class="req">*</span></label>
+              <input type="text" id="input-fullName" class="input-control" placeholder="Aadesh Khande" required>
+              <span class="field-error" id="err-fullName"></span>
+            </div>
+
+            <!-- Institutional Email -->
+            <div class="form-field">
+              <label for="input-email" class="field-label">Email Address <span class="req">*</span></label>
+              <input type="email" id="input-email" class="input-control font-mono" placeholder="student@college.edu" required>
+              <span class="field-error" id="err-email"></span>
+            </div>
+
+            <!-- Department -->
+            <div class="form-field">
+              <label for="input-department" class="field-label">Department <span class="req">*</span></label>
+              <select id="input-department" class="select-control" required>
+                <option value="">Select Department</option>
+                <option value="Computer Engineering">Computer Engineering</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="AI & Data Science">AI & Data Science</option>
+                <option value="Electronics & Telecommunication">Electronics & Telecom</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+              </select>
+              <span class="field-error" id="err-department"></span>
+            </div>
+
+            <!-- Semester -->
+            <div class="form-field">
+              <label for="input-semester" class="field-label">Semester (1–8) <span class="req">*</span></label>
+              <input type="number" id="input-semester" class="input-control font-mono" min="1" max="8" value="5" required>
+              <span class="field-error" id="err-semester"></span>
+            </div>
+
+            <!-- CGPA -->
+            <div class="form-field">
+              <label for="input-cgpa" class="field-label">CGPA (0.00–10.00) <span class="req">*</span></label>
+              <input type="number" id="input-cgpa" class="input-control font-mono" min="0" max="10" step="0.01" placeholder="9.42" required>
+              <span class="field-error" id="err-cgpa"></span>
+            </div>
+
+            <!-- Enrollment Status -->
+            <div class="form-field">
+              <label for="input-status" class="field-label">Enrollment Status</label>
+              <select id="input-status" class="select-control">
+                <option value="Active">Active</option>
+                <option value="Probation">Probation</option>
+                <option value="Graduated">Graduated</option>
+                <option value="On Leave">On Leave</option>
+              </select>
+              <span class="field-error" id="err-status"></span>
+            </div>
+
+            <!-- Courses -->
+            <div class="form-field">
+              <label for="input-courses" class="field-label">Enrolled Courses (Comma Separated)</label>
+              <input type="text" id="input-courses" class="input-control font-mono" placeholder="WT-301, CS-302, DB-303">
+              <span class="field-hint">e.g. WT-301, CS-302</span>
+            </div>
+
+            <!-- Remarks -->
+            <div class="form-field full-width">
+              <label for="input-remarks" class="field-label">Academic Remarks</label>
+              <input type="text" id="input-remarks" class="input-control" placeholder="Dean honors list recipient">
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-record">Save Record</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal-backdrop hidden" id="delete-modal" role="dialog" aria-modal="true">
+      <div class="modal-card modal-confirm">
+        <div class="modal-header">
+          <h2 class="modal-title">Confirm Record Deletion</h2>
+          <button type="button" class="btn-close" id="btn-close-delete-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to permanently delete student record <strong id="delete-prn-display" class="font-mono">--</strong>?</p>
+          <p class="text-secondary mt-1">This operation sends an HTTP <code>DELETE /api/records/:id</code> request and removes the document from the database.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
+          <button type="button" class="btn btn-danger" id="btn-confirm-delete">Delete Record</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
